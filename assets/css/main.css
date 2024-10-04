@@ -1,0 +1,30 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+#c {
+    width: var(--w);
+    height: var(--h);
+    background-color: black;
+    touch-action: manipulate;
+}
+
+body {
+    -webkit-overscroll-behavior: none;
+    overscroll-behavior: none;
+    overflow: hidden;
+    -webkit-touch-callout: none;
+
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+}
