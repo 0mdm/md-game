@@ -5,6 +5,7 @@
 }
 
 #c {
+    display: block;
     width: var(--w);
     height: var(--h);
     background-color: black;
@@ -27,4 +28,29 @@ body {
     -khtml-user-drag: none;
     -moz-user-drag: none;
     -o-user-drag: none;
+}
+
+#ui {
+    position: absolute;
+    width: var(--w);
+    height: var(--h);
+}
+
+#ui > * {
+    margin: auto;
+}
+
+#ui > #controls {
+    padding: 30px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid red;
+}
+
+#ui > #control #top {
+
 }

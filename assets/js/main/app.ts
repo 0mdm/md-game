@@ -1,7 +1,9 @@
 import { Application } from "pixi.js";
 import { $ } from "../lib/util";
 
-export const app = await new Application().init({
+export const app = await new Application();
+
+app.init({
     preference: "webgpu",
     powerPreference: "high-performance",
     antialias: false,
