@@ -1,12 +1,14 @@
-import { Sprite, Texture } from "pixi.js";
+import { Container, Sprite, Texture } from "pixi.js";
 import { halfHeight, halfWidth } from "../main/canvas";
 import { app } from "../main/app";
 
 interface PlayerOpts {
     texture: Texture;
+    worldContainer: Container;
 }
 
 export class Player {
+    worldContainer: Container;
     jumpIntensity = 0;
     currentGravity = 0;
     gravity = 0.02; // pixels per frame
@@ -19,9 +21,10 @@ export class Player {
     constructor(o: PlayerOpts) {
         this.playerSprite = new Sprite(o.texture);
         this.playerSprite.scale.x = 10;
-        this.playerSprite.scale.y = 20;
+        this.playerSprite.scale.y = 46;
         this.playerSprite.anchor.set(0.5, 0.5);
         this.playerSprite.position.set(halfWidth, halfHeight);
+        this.worldContainer = o.worldContainer;
 
         app.stage.addChild(this.playerSprite);
     }
@@ -34,13 +37,14 @@ export class Player {
     }
     
     tick() {
+        console.log(this.worldContainer.position.y)
         if(this.gravityEnabled) {
             this.vertVelocity -= this.currentGravity;
-            this.playerSprite.position.y -= this.vertVelocity;
-            if (this.playerSprite.position.y < (halfHeight - this.gravity)) {
-                this.playerSprite.position.y += this.gravity;
-            } else if (this.playerSprite.position.y > halfHeight) {
-                this.playerSprite.position.y = halfHeight;
+            this.worldContainer.position.y += this.vertVelocity;
+            if(this.worldContainer.position.y > -this.gravity) {
+                this.worldContainer.position.y += this.gravity;
+            } else if (this.worldContainer.position.y < 0) {
+                this.worldContainer.position.y = 0;
                 this.jumpTime = 0;
                 this.vertVelocity = 0;
             }
@@ -69,11 +73,11 @@ export class Player {
     }
 
     moveLeft(s: number) {
-        this.playerSprite.position.x -= s;
+        this.worldContainer.position.x += s;
     }
 
     moveRight(s: number) {
-        this.playerSprite.position.x += s;
+        this.worldContainer.position.x -= s;
     }
 }
 
