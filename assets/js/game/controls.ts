@@ -30,7 +30,6 @@ setInterval(() => {
 
     if(moving.left) player.moveLeft(1);
     if(moving.right) player.moveRight(1);
-    
     player.tick();
 }, 1 / 60);
 

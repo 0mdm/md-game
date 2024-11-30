@@ -1,6 +1,16 @@
 import { Container, Sprite, Texture } from "pixi.js";
 import { halfHeight, halfWidth } from "../main/canvas";
 import { app } from "../main/app";
+import { Quadtree } from "./quadtree";
+
+export interface QuadtreeBox {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    maxX: number;
+    maxY: number;
+}
 
 interface PlayerOpts {
     texture: Texture;
@@ -8,6 +18,7 @@ interface PlayerOpts {
 }
 
 export class Player {
+    tree?: Quadtree;
     worldContainer: Container;
     jumpIntensity = 0;
     currentGravity = 0;
@@ -37,13 +48,21 @@ export class Player {
     }
     
     tick() {
-        console.log(this.worldContainer.position.y)
         if(this.gravityEnabled) {
+            const playerBounds: QuadtreeBox = {
+                x: this.playerSprite.x,
+                y: this.playerSprite.y-1,
+                width: this.playerSprite.width,
+                height: this.playerSprite.height,
+                maxX: this.playerSprite.bounds.maxX,
+                maxY: this.playerSprite.bounds.maxY-1,
+            };
+
             this.vertVelocity -= this.currentGravity;
             this.worldContainer.position.y += this.vertVelocity;
             if(this.worldContainer.position.y > -this.gravity) {
                 this.worldContainer.position.y += this.gravity;
-            } else if (this.worldContainer.position.y < 0) {
+            } else if(this.tree!.checkForBlocks(playerBounds)) {
                 this.worldContainer.position.y = 0;
                 this.jumpTime = 0;
                 this.vertVelocity = 0;
@@ -79,6 +98,10 @@ export class Player {
     moveRight(s: number) {
         this.worldContainer.position.x -= s;
     }
+
+    useTree(o: Quadtree) {
+        this.tree = o;
+    }
 }
 
 export class GameObject {
@@ -87,5 +110,16 @@ export class GameObject {
 
     constructor(sprite: Sprite) {
         this.sprite = sprite;
+    }
+
+    getQuadtreeBounds(): QuadtreeBox {
+        return {
+            x: this.sprite.position.x,
+            y: this.sprite.position.y,
+            width: this.sprite.width,
+            height: this.sprite.height,
+            maxX: this.sprite.bounds.maxX,
+            maxY: this.sprite.bounds.maxY,
+        };
     }
 }
