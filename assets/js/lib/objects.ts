@@ -7,11 +7,12 @@ interface PlayerOpts {
 }
 
 export class Player {
-    jumpIntensity= 3;
-    gravity = 0.1; // pixels per frame
+    jumpIntensity = 0;
+    currentGravity = 0;
+    gravity = 0.02; // pixels per frame
     gravityEnabled = true;
     jumpTime = 0;
-    jumpTimeLimit = 15;
+    jumpTimeLimit = 40;
     vertVelocity = 0;
     playerSprite: Sprite;
 
@@ -33,8 +34,8 @@ export class Player {
     }
     
     tick() {
-        if (this.gravityEnabled) {
-            this.vertVelocity -= this.gravity;
+        if(this.gravityEnabled) {
+            this.vertVelocity -= this.currentGravity;
             this.playerSprite.position.y -= this.vertVelocity;
             if (this.playerSprite.position.y < (halfHeight - this.gravity)) {
                 this.playerSprite.position.y += this.gravity;
@@ -47,14 +48,24 @@ export class Player {
     }
 
     jump() {
-        if(this.jumpTime <= this.jumpTimeLimit) {
+        if(this.jumpTime < this.jumpTimeLimit) {
+            this.currentGravity = 0;
             this.jumpTime++;
-            this.vertVelocity = this.jumpIntensity;
+            this.vertVelocity = 1.5;
+            /*if(this.jumpIntensity < this.jumpIntensityMax) {
+                this.vertVelocity = this.jumpIntensityMax / 2;
+            } else {
+                this.vertVelocity = this.jumpIntensityMax;
+            }*/
+        } else {
+            this.jumpEnd();
         }
     }
 
     jumpEnd() {
         this.jumpTime = this.jumpTimeLimit;
+        this.currentGravity = this.gravity;
+        this.jumpIntensity = 0;
     }
 
     moveLeft(s: number) {
@@ -63,5 +74,14 @@ export class Player {
 
     moveRight(s: number) {
         this.playerSprite.position.x += s;
+    }
+}
+
+export class GameObject {
+    sprite: Sprite;
+    isOversized = false;
+
+    constructor(sprite: Sprite) {
+        this.sprite = sprite;
     }
 }
