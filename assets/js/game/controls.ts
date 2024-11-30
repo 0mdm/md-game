@@ -18,18 +18,38 @@ const moving = {
     up: false,
     left: false,
     down: false,
-    right: true,
+    right: false,
 };
 
 setInterval(() => {
+    if(moving.up) {
+        player.jump();
+    } else {
+        player.jumpEnd();
+    }
+
+    if(moving.left) player.moveLeft(1);
+    if(moving.right) player.moveRight(1);
 }, 1 / 60);
 
-up(upB, () => moving.up = true);
-up(leftB, () => moving.left = true);
-up(downB, () => moving.down = true);
-up(rightB, () => moving.right = true);
+addEventListener("keydown", e => {
+    if(e.key == "w") moving.up = true;
+    if(e.key == "a") moving.left = true;
+    if(e.key == "d") moving.right = true;
+});
 
-down(upB, () => moving.up = false);
-down(leftB, () => moving.left = false);
-down(downB, () => moving.down = false);
-down(rightB, () => moving.right = false);
+addEventListener("keyup", e => {
+    if(e.key == "w") moving.up = false;
+    if(e.key == "a") moving.left = false;
+    if(e.key == "d") moving.right = false;
+});
+
+down(upB, () => moving.up = true);
+down(leftB, () => moving.left = true);
+down(downB, () => moving.down = true);
+down(rightB, () => moving.right = true);
+
+up(upB, () => moving.up = false);
+up(leftB, () => moving.left = false);
+up(downB, () => moving.down = false);
+up(rightB, () => moving.right = false);

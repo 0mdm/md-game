@@ -1,4 +1,4 @@
-export const UTIL_VERSION: number = 1.2;
+export const UTIL_VERSION: number = 1.3;
 
 export const RADIAN_QUARTER = 28.6479;
 
@@ -93,4 +93,8 @@ export function getRandom(array: any[]): any {
 
 export function clamp(min: number, num: number, max: number): number {
   return Math.min(Math.max(num, min), max);
+}
+
+export function fr60(f: () => void) {
+  setInterval(f, 1 / 60)
 }
