@@ -1,7 +1,10 @@
 import { Container, Sprite, Texture } from "pixi.js";
 import { halfHeight, halfWidth } from "../main/canvas";
 import { app } from "../main/app";
-import { Quadtree } from "./quadtree";
+
+export interface box {
+
+}
 
 export interface QuadtreeBox {
     x: number;
@@ -18,7 +21,6 @@ interface PlayerOpts {
 }
 
 export class Player {
-    tree?: Quadtree;
     worldContainer: Container;
     jumpIntensity = 0;
     currentGravity = 0;
@@ -58,7 +60,7 @@ export class Player {
                 maxY: this.playerSprite.bounds.maxY-1,
             };
 
-            this.vertVelocity -= this.currentGravity;
+            /*this.vertVelocity -= this.currentGravity;
             this.worldContainer.position.y += this.vertVelocity;
             if(this.worldContainer.position.y > -this.gravity) {
                 this.worldContainer.position.y += this.gravity;
@@ -66,7 +68,7 @@ export class Player {
                 this.worldContainer.position.y = 0;
                 this.jumpTime = 0;
                 this.vertVelocity = 0;
-            }
+            }*/
         }
     }
 
@@ -97,10 +99,6 @@ export class Player {
 
     moveRight(s: number) {
         this.worldContainer.position.x -= s;
-    }
-
-    useTree(o: Quadtree) {
-        this.tree = o;
     }
 }
 

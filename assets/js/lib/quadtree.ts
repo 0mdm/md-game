@@ -1,143 +1,131 @@
-import { PointData, Sprite, Texture } from "pixi.js";
-import { GameObject, QuadtreeBox } from "./objects";
-import { app } from "../main/app";
+import {Container, Sprite} from "pixi.js";
+import { QuadtreeBox } from "./objects";
 
-export interface Bounds {
+var idCounter: number = 0;
+
+function isColliding(q: Quadtree, o: BaseObject | QuadtreeBox): boolean {
+    return q.x < o.maxX 
+    && q.maxX > o.x 
+    && q.y < o.y + o.maxX
+    && q.maxY > o.y;
+}
+
+interface BaseObjectOpts {
     x: number;
     y: number;
     width: number;
     height: number;
+    sprite?: Sprite;
+    stage: Container;
 }
 
-const octreeMinSize = 8;
-
-function alertErr(msg: string): never {
-    throw new Error("Octree: " + msg);
-}
-
-function AABB(a: Quadtree, b: QuadtreeBox): boolean {
-    if(b.x == 16) {
-        console.log(a.x <= b.maxX);
-        console.log(a.maxX >= b.x);
-        console.log(a.y <= b.maxY);
-        console.log(a.maxY >= b.y)
-        console.log("\n")
-    }
-
-    return a.x <= b.maxX
-    && a.maxX >= b.x 
-    && a.y <= b.maxY 
-    && a.maxY >= b.y
-}
-
-export class Quadtree {
-    children: Quadtree[] = [];
-    isLeaf = false;
+export class BaseObject {
     x: number;
     y: number;
     width: number;
     height: number;
     maxX: number;
-    maxY: number
-    storedObjects: GameObject[] = [];
+    maxY: number;
+    sprite?: Sprite;
+    id: number;
+    private stage: Container;
 
-    constructor(b: Bounds, isParent: boolean = true) {
-        this.x = b.x;
-        this.y = b.y;
-        this.width = b.width;
-        this.maxX = b.x + b.width;
-        this.height = b.height;
-        this.maxY = b.y + b.height;
+    constructor(o: BaseObjectOpts) {
+        this.x = o.x;
+        this.y = o.y;
+        this.width = o.width;
+        this.height = o.height;
+        this.maxX = this.x + this.width;
+        this.maxY = this.y + this.height;
+        this.sprite = o.sprite;
+        this.stage = o.stage;
+        this.id = idCounter++;
+    }
 
-        if(isParent) this.checkForErrors();
-
-        if(this.width > octreeMinSize) {
-            this.split();
+    addSelf() {
+        if(this.sprite != undefined) {
+            this.stage.addChild(this.sprite);
         } else {
-            this.isLeaf = true;
-            this.addDebugSquare();
+            throw new Error(
+                "quadtree.ts: "
+            +   `sprite isn't defined`
+            );
         }
     }
+}
 
-    addDebugSquare() {
-        const s = new Sprite(Texture.WHITE);
-        s.position.set(this.x, this.y);
-        s.width = this.width;
-        s.height = this.height;
-        app.stage.addChild(s);
+export class StaticObject extends BaseObject {
+    constructor(o: BaseObjectOpts) {
+        super(o);
+    }
+}
+
+export class Quadtree {
+    nodes: Quadtree[] = [];
+    children: BaseObject[] = [];
+    isDivided: boolean = false;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    halfW: number;
+    halfH: number;
+    maxX: number;
+    maxY: number;
+    minSize: number = 16;
+
+    constructor(x: number, y: number, width: number, height: number) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.maxX = this.x + this.width;
+        this.maxY = this.y + this.height;
+        this.halfW = width / 2;
+        this.halfH = height / 2;
+        if(this.width > this.minSize) this.subdivide();
     }
 
-    checkForErrors() {
-        if(this.width != this.height) alertErr(`Width isn't equal to height: ${this.width}, ${this.height}`);
-        if(this.width % octreeMinSize != 0) alertErr("Octree isn't divisible");
-        if(this.width <= 1) alertErr("Width and height are too small");
+    subdivide() {
+        this.isDivided = true;
+        const nw = new Quadtree(this.x, this.y, this.halfW, this.halfH);
+        const ne = new Quadtree(this.x + this.halfW, this.y, this.halfW, this.halfH);
+        const se = new Quadtree(this.x + this.halfW, this.y + this.halfH, this.halfW, this.halfH);
+        const sw = new Quadtree(this.x, this.y + this.halfH, this.halfW, this.halfH);
+
+        this.nodes.push(nw, ne, se, sw);
     }
 
-    split() {
-        // half bounds
-        const hw = this.width / 2;
-        const hh = this.height / 2;
+    insert(obj: BaseObject): boolean {
+        if(obj.width > this.width
+        || obj.height > this.height) return false;
 
-        const q1: Bounds = {
-            x: this.x,
-            y: this.x,
-            width: hw,
-            height: hh,
-        };
-        const q2: Bounds = {
-            x: this.x + hw,
-            y: this.y,
-            width: hw,
-            height: hh,
-        };
-        const q3: Bounds = {
-            x: this.x + hw,
-            y: this.y + hh,
-            width: hw,
-            height: hh,
-        };
-        const q4: Bounds = {
-            x: this.x,
-            y: this.y + hh,
-            width: hw,
-            height: hh,
-        };
-
-        const o1 = new Quadtree(q1, false);
-        const o2 = new Quadtree(q2, false);
-        const o3 = new Quadtree(q3, false);
-        const o4 = new Quadtree(q4, false);
-
-        this.children = [o1, o2, o3, o4];
-    }
-
-    checkForBlocks(o: QuadtreeBox): boolean {
-        const found: boolean = AABB(this, o);
-
-        if(found) {
-            if(this.isLeaf) return true;
-
-            for(const tree of this.children)
-                if(tree.checkForBlocks(o)) return true;
-
-            if(o.width > octreeMinSize) return true;
-
-            return false;
-        } else {
-            return false;
-        }
-    }
-
-    insert(o: GameObject): boolean {
-        const isInside = AABB(this, o.getQuadtreeBounds());
-        if(isInside) {
-            if(this.isLeaf) {
-                this.storedObjects.push(o);
+        if(isColliding(this, obj)) {
+            if(this.isDivided) {
+                // parent
+                for(const node of this.nodes)
+                    if(node.insert(obj)) return true;
+                
+                this.children.push(obj);
+                return true;
+            } else {
+                // leaf
+                this.children.push(obj);
                 return true;
             }
+        }
 
-            for(const trees of this.children) 
-                if(trees.insert(o)) return true;
+        return false;
+    }
+
+    find(e: QuadtreeBox): false | BaseObject[] {
+        if(isColliding(this, e)) {
+            if(this.isDivided) {
+                for(const node of this.nodes) return node.find(e);
+            } else {
+                if(this.children.length == 0) return false;
+                return this.children;
+            }
         }
 
         return false;

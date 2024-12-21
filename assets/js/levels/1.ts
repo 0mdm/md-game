@@ -1,5 +1,6 @@
+import { levelMap } from "../lib/world";
 
-export const levelOne = `
+levelMap.start = `
 
 
 
