@@ -1,7 +1,7 @@
 import { Container, Sprite, Texture } from "pixi.js";
 import { Keymap } from "./keymap";
 import { BaseObject, Quadtree } from "./quadtree";
-import { GameObject } from "./objects";
+import { GameObject, Player, PlayerOpts } from "./objects";
 import { app } from "../main/app";
 
 interface TreeMap {
@@ -14,14 +14,43 @@ interface LevelMap {
 
 export const levelMap: LevelMap = {};
 
+interface WorldOpts {
+    player?: Partial<PlayerOpts>;
+    startLevel: string;
+}
+
 export class World {
     trees: TreeMap = {};
-    container = new Container();
+    container = new Container(); // world
     keymap = new Keymap();
+    player: Player;
     cLevel: string; // current level
 
-    constructor(startLevel: string) {
-        this.cLevel = startLevel;
+    constructor(o: WorldOpts) {
+        this.cLevel = o.startLevel;
+
+        o.player ||= {};
+        this.player = new Player({
+            worldContainer: this.container,
+            texture: o.player.texture || Texture.WHITE,
+        });
+
+        for(const i in levelMap) {
+            this.trees[i] = new Quadtree(0, 0, 8000, 8000);
+        }
+
+        this.setKeymap();
+        this.loadLevel(this.cLevel);
+
+        app.stage.addChild(this.container);
+    }
+
+    loadLevel(l: string) {
+        this.cLevel = l; // name
+        const level: string = levelMap[this.cLevel]; // blocks
+        if(level == undefined) throw new Error("world.ts: level not found");
+
+        this.keymap.run(level);
     }
 
     keymapInsert(o: BaseObject, s: Sprite) {
@@ -46,8 +75,12 @@ export class World {
                 y: s.y,
                 width: 16,
                 height: 16,
-                stage: app.stage,
+                sprite: s,
             });
+
+            this.container.addChild(o.sprite);
+            console.log(o.sprite);
+
             self.keymapInsert(o, s);
         });
     }

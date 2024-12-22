@@ -1,11 +1,13 @@
 import { Container, Sprite, Texture } from "pixi.js";
 import { Keymap } from "../lib/keymap";
 import { app } from "../main/app";
-import { player } from "./player";
 import { World } from "../lib/world";
 
-const world = new World("1");
+const world = new World({
+    startLevel: "start",
+});
 
-const container = player.worldContainer;
+export const player = world.player;
 
-app.stage.addChild(container);
+app.stage.addChild(world.container);
+

@@ -2,6 +2,13 @@
 export class Keymap {
     keys: {[index: string]: (x: number, y: number) => void} = {};
 
+    static scan(txt: string) {
+        const txtArr: string[] = txt.split("\n");
+        const yMax = txtArr.length;
+        const height = yMax * 16;
+        
+    }
+
     run(txt: string) {
         const txtArr: string[] = txt.split("\n");
         const yMax = txtArr.length;

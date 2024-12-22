@@ -1,4 +1,3 @@
-import "./player";
-import "./controls";
-import "./levels/main";
+import "../levels/main";
 import "./start.ts";
+import "./controls";

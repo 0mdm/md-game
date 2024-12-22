@@ -15,8 +15,7 @@ interface BaseObjectOpts {
     y: number;
     width: number;
     height: number;
-    sprite?: Sprite;
-    stage: Container;
+    sprite: Sprite;
 }
 
 export class BaseObject {
@@ -26,9 +25,8 @@ export class BaseObject {
     height: number;
     maxX: number;
     maxY: number;
-    sprite?: Sprite;
+    sprite: Sprite;
     id: number;
-    private stage: Container;
 
     constructor(o: BaseObjectOpts) {
         this.x = o.x;
@@ -38,19 +36,7 @@ export class BaseObject {
         this.maxX = this.x + this.width;
         this.maxY = this.y + this.height;
         this.sprite = o.sprite;
-        this.stage = o.stage;
         this.id = idCounter++;
-    }
-
-    addSelf() {
-        if(this.sprite != undefined) {
-            this.stage.addChild(this.sprite);
-        } else {
-            throw new Error(
-                "quadtree.ts: "
-            +   `sprite isn't defined`
-            );
-        }
     }
 }
 

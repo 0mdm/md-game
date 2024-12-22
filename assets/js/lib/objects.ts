@@ -15,7 +15,7 @@ export interface QuadtreeBox {
     maxY: number;
 }
 
-interface PlayerOpts {
+export interface PlayerOpts {
     texture: Texture;
     worldContainer: Container;
 }

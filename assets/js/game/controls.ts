@@ -1,5 +1,5 @@
 import { $ } from "../lib/util";
-import { player } from "./player";
+import { player } from "./start";
 
 function up(el: HTMLButtonElement, f: () => void) {
     el.addEventListener("pointerup", f);
