@@ -1,5 +1,3 @@
-import { Container, Sprite, Texture } from "pixi.js";
-import { Keymap } from "../lib/keymap";
 import { app } from "../main/app";
 import { World } from "../lib/world";
 

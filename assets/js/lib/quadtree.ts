@@ -1,13 +1,36 @@
-import {Container, Sprite} from "pixi.js";
+import {Container, Sprite, Texture} from "pixi.js";
 import { QuadtreeBox } from "./objects";
+import { app } from "../main/app";
+import { sp } from "./util";
 
 var idCounter: number = 0;
+var debugContainer: Container;
 
-function isColliding(q: Quadtree, o: BaseObject | QuadtreeBox): boolean {
+export function setQuadreeDebug(e: Container) {
+    debugContainer = e;
+}
+
+function playerCollide(q: Quadtree | QuadtreeBox | BaseObject, p: QuadtreeBox): boolean {
+    return q.x < p.maxX
+    && q.maxX > p.x
+    && q.y > p.maxY
+    && q.maxY < p.y;
+}
+
+function isColliding(q: Quadtree | QuadtreeBox| BaseObject, o: Quadtree | BaseObject | QuadtreeBox): boolean {
     return q.x < o.maxX 
     && q.maxX > o.x 
-    && q.y < o.y + o.maxX
+    && q.y < o.maxY
     && q.maxY > o.y;
+}
+
+function isDevColliding(q: Quadtree, o: BaseObject | QuadtreeBox) {
+    const a = q.x < o.maxX;
+    const b = q.maxX > o.x;
+    const c = q.y < o.maxY
+    const d = q.maxY > o.y;
+
+    console.log("qy: " + q.y, "\no maxY: " + o.maxY, q.y < o.maxY);
 }
 
 interface BaseObjectOpts {
@@ -58,7 +81,7 @@ export class Quadtree {
     halfH: number;
     maxX: number;
     maxY: number;
-    minSize: number = 16;
+    minSize: number = 32;
 
     constructor(x: number, y: number, width: number, height: number) {
         this.x = x;
@@ -69,6 +92,24 @@ export class Quadtree {
         this.maxY = this.y + this.height;
         this.halfW = width / 2;
         this.halfH = height / 2;
+
+        if(this.width % 2 != 0) throw new Error("quadtree.ts: can't divided by 2: " + this.width % 2);
+
+        const size = 2048 / 32;
+        if(this.width == size) {
+            const s = new Sprite(Texture.WHITE);
+            s.tint = Math.random() * 0xffffff;
+            s.anchor.set(0, 0);
+            // innerWidth: 874
+            s.position.set(this.x, this.y);
+            s.width = this.width;
+            s.height = this.height;
+
+            s.zIndex = -1;
+
+            debugContainer.addChild(s);
+        }
+
         if(this.width > this.minSize) this.subdivide();
     }
 
@@ -93,6 +134,7 @@ export class Quadtree {
                     if(node.insert(obj)) return true;
                 
                 this.children.push(obj);
+                console.log(1);
                 return true;
             } else {
                 // leaf
@@ -104,12 +146,32 @@ export class Quadtree {
         return false;
     }
 
-    find(e: QuadtreeBox): false | BaseObject[] {
+    once = false;
+
+    find(e: QuadtreeBox, debug = false): false | BaseObject[] {
+        if(debug && this.width == 128 && this.x == 512 && this.y == 384 && !this.once) {
+            this.once = true;
+            isDevColliding(this, e);
+            debugContainer.addChild(sp(this.x, this.y, this.width, this.height));
+        }
         if(isColliding(this, e)) {
             if(this.isDivided) {
-                for(const node of this.nodes) return node.find(e);
+                for(const node of this.nodes) {
+                    const result = node.find(e, debug);
+                    if(result) return result;
+                }
             } else {
-                if(this.children.length == 0) return false;
+                if(this.children.length == 0) {
+                    const collisions = [];
+                    for(const node of this.nodes) {
+                        for(const box of node.children) {
+                            if(isColliding(e, box)) collisions.push(box);
+                        }
+                    }
+
+                    if(collisions.length == 0) return false;
+                    return collisions;
+                }
                 return this.children;
             }
         }

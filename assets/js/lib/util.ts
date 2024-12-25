@@ -1,3 +1,5 @@
+import { Color, Sprite, Texture } from "pixi.js";
+
 export const UTIL_VERSION: number = 1.3;
 
 export const RADIAN_QUARTER = 28.6479;
@@ -97,4 +99,14 @@ export function clamp(min: number, num: number, max: number): number {
 
 export function fr60(f: () => void) {
   setInterval(f, 1 / 60)
+}
+
+export function sp(x: number, y: number, width: number, height: number, color: number = Math.random() * 0xffffff): Sprite {
+  const s = new Sprite(Texture.WHITE);
+  s.position.set(x, y);
+  s.width = width;
+  s.height = height;
+  s.tint = Math.random() * 0xffffff;
+  s.zIndex = -1;
+  return s;
 }

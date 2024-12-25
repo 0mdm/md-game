@@ -10,7 +10,7 @@ export class Keymap {
     }
 
     run(txt: string) {
-        const txtArr: string[] = txt.split("\n");
+        const txtArr: string[] = txt.split("\n");  
         const yMax = txtArr.length;
 
         for(let y = 0; y != yMax; y++) {

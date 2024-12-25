@@ -1,7 +1,7 @@
 import { Container, Sprite, Texture } from "pixi.js";
 import { Keymap } from "./keymap";
-import { BaseObject, Quadtree } from "./quadtree";
-import { GameObject, Player, PlayerOpts } from "./objects";
+import { BaseObject, Quadtree, setQuadreeDebug } from "./quadtree";
+import { Player, PlayerOpts } from "./objects";
 import { app } from "../main/app";
 
 interface TreeMap {
@@ -30,13 +30,18 @@ export class World {
         this.cLevel = o.startLevel;
 
         o.player ||= {};
+
+        setQuadreeDebug(this.container);
+
         this.player = new Player({
             worldContainer: this.container,
             texture: o.player.texture || Texture.WHITE,
+            getTree: () => this.trees[this.cLevel],
         });
 
+
         for(const i in levelMap) {
-            this.trees[i] = new Quadtree(0, 0, 8000, 8000);
+            this.trees[i] = new Quadtree(0, 0, 2048, 2048);
         }
 
         this.setKeymap();
@@ -79,8 +84,6 @@ export class World {
             });
 
             this.container.addChild(o.sprite);
-            console.log(o.sprite);
-
             self.keymapInsert(o, s);
         });
     }
