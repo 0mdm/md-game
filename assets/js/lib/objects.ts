@@ -1,4 +1,4 @@
-import { Container, ObservablePoint, Sprite, Texture } from "pixi.js";
+import { Container, ObservablePoint, Sprite, squaredDistanceToLineSegment, Texture } from "pixi.js";
 import { halfHeight, halfWidth } from "../main/canvas";
 import { app } from "../main/app";
 import { BaseObject, Quadtree } from "./quadtree";
@@ -33,17 +33,17 @@ export class Player {
         x: halfWidth,
         y: halfHeight / 2,
         width: 16,
-        height: -16,
-        maxX: halfWidth + 16,
+        height: 16,
+        maxX: halfWidth - 16,
         maxY: halfHeight + 16,
     };
-    downPos: QuadtreeBox = {
-        x: halfWidth + 16,
-        y: halfHeight / 2,
-        width: 1,
-        height: -17.2,
-        maxX: halfWidth + 1,
-        maxY: halfHeight + 17.2,
+    sidePos: QuadtreeBox = {
+        x: halfWidth,
+        y: halfHeight / 2 + 2,
+        width: 16,
+        height: 10,
+        maxX: halfWidth - 16,
+        maxY: halfHeight + 10,
     };
     getTree: () => Quadtree;
 
@@ -51,8 +51,8 @@ export class Player {
         this.playerSprite = new Sprite(o.texture);
         this.playerSprite.width = this.pos.width;
         this.playerSprite.height = this.pos.height;
-        this.playerSprite.anchor.set(1, 0);
-        this.playerSprite.position.set(this.pos.x + this.pos.width, this.pos.y - this.pos.height);
+        this.playerSprite.anchor.set(0, 0);
+        this.playerSprite.position.set(this.pos.x, this.pos.y);
         this.playerSprite.zIndex = 2;
         this.worldContainer = o.worldContainer;
         this.getTree = o.getTree;
@@ -73,7 +73,7 @@ export class Player {
     }
       
     calculateOverlapY(o: BaseObject): number {
-        return Math.max(0, Math.min(this.pos.y, o.y) - Math.max(this.pos.maxY, o.maxY))
+        return Math.max(0, Math.min(this.pos.y, o.y) - Math.max(this.pos.maxY, o.maxY));
     }
 
     seperateX(o: BaseObject) {
@@ -85,37 +85,46 @@ export class Player {
     seperateY(o: BaseObject) {
         const overlapY = this.calculateOverlapY(o);
         this.moveUp(this.pos.y > o.y ? overlapY : -overlapY);
+        
+        if(this.pos.y > o.y && this.vertVelocity > 0) {
+            this.vertVelocity = 0;
+        } else if(this.vertVelocity < 0) {
+            this.vertVelocity = 0;
+        }
+    }
+
+    debugHighlight(arr: BaseObject[]) {
+        for(const o of arr) {
+            o.sprite.tint = 0xfff000;
+        }
     }
 
     tick() {
         this.pos.maxX = this.pos.x + this.pos.width;
-        this.pos.maxY = this.pos.y - this.pos.height;
-        this.downPos.maxX = this.downPos.x + this.downPos.width;
-        this.downPos.maxY = this.downPos.y - this.downPos.height;
-        const tree = this.getTree();
+        this.pos.maxY = this.pos.y + this.pos.height;
+        this.sidePos.maxX = this.sidePos.x + this.sidePos.width;
+        this.sidePos.maxY = this.sidePos.y + this.sidePos.height;
 
         if(this.gravityEnabled) {
             this.vertVelocity -= this.currentGravity;
-            /*if(this.pos.y == 416) {
-                console.log(tree.find(this.pos, true));
-                this.moveUp(1);
-            }*/
-
-            const found: BaseObject[] | false = tree.find(this.pos);
-            if(found) {
-                this.seperateX(found[0]);
-            }
-            
-            const foundDown: BaseObject[] | false = tree.find(this.downPos);
-            if(foundDown) {
-                this.jumpTime = 0;
-                this.seperateY(foundDown[0]);
-                if(this.vertVelocity < 0) this.vertVelocity = 0;
-                this.moveDown(-this.vertVelocity);
-            } else {
-                this.moveDown(-this.vertVelocity);
-            }
+            this.handleCollision();
         }
+    }
+
+    handleCollision() {
+        const tree = this.getTree();
+
+        const collidedY: BaseObject[] | false = tree.find(this.pos);
+        if(collidedY) {
+            this.jumpTime = 0;
+            this.seperateY(collidedY[0]);
+            this.debugHighlight(collidedY);
+        }
+
+        const collidedX: BaseObject[] | false = tree.find(this.sidePos);
+        if(collidedX) this.seperateX(collidedX[0]);
+
+        this.moveDown(-this.vertVelocity);
     }
 
     jump() {
@@ -141,25 +150,25 @@ export class Player {
 
     moveDown(s: number) {
         this.pos.y += s;
-        this.downPos.y += s;
+        this.sidePos.y += s;
         this.worldContainer.position.y -= s;
     }
 
     moveUp(s: number) {
         this.pos.y -= s;
-        this.downPos.y -= s;
+        this.sidePos.y -= s;
         this.worldContainer.position.y += s;
     }
 
     moveLeft(s: number) {
         this.worldContainer.position.x += s;
-        this.downPos.x -= s;
+        this.sidePos.x -= s;
         this.pos.x -= s;
     }
 
     moveRight(s: number) {
         this.worldContainer.position.x -= s;
-        this.downPos.x += s;
+        this.sidePos.x += s;
         this.pos.x += s;
     }
 }

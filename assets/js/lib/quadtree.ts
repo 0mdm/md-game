@@ -81,7 +81,7 @@ export class Quadtree {
     halfH: number;
     maxX: number;
     maxY: number;
-    minSize: number = 32;
+    minSize: number = 16;
 
     constructor(x: number, y: number, width: number, height: number) {
         this.x = x;
