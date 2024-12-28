@@ -72,7 +72,7 @@ export class World {
             const s = new Sprite(Texture.WHITE);
             s.position.set(x * 16, y * 16);
             s.scale.set(16);
-            s.tint = Math.random() * 0xffffff;
+            s.tint = 0x1ae9f0;
             this.container.addChild(s);
         
             const o = new BaseObject({

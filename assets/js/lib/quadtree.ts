@@ -149,16 +149,23 @@ export class Quadtree {
     once = false;
 
     find(e: QuadtreeBox, debug = false): false | BaseObject[] {
-        if(debug && this.width == 128 && this.x == 512 && this.y == 384 && !this.once) {
-            this.once = true;
-            isDevColliding(this, e);
-            debugContainer.addChild(sp(this.x, this.y, this.width, this.height));
-        }
         if(isColliding(this, e)) {
             if(this.isDivided) {
                 for(const node of this.nodes) {
                     const result = node.find(e, debug);
                     if(result) return result;
+                }
+
+                if(e.width > this.width) {
+                    const collisions = [];
+                    for(const node of this.nodes) {
+                        for(const box of node.children) {
+                            if(isColliding(e, box)) collisions.push(box);
+                        }
+                    }
+
+                    if(collisions.length == 0) return false;
+                    return collisions;
                 }
             } else {
                 if(this.children.length == 0) {
