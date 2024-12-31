@@ -20,12 +20,12 @@ export interface PlayerOpts {
 
 export class Player {
     worldContainer: Container;
-    jumpIntensity = 2;
+    jumpIntensity = 2.5;
     currentGravity = 0;
-    gravity = 0.02; // pixels per frame
+    gravity = 0.2; // pixels per frame
     gravityEnabled = true;
     jumpTime = 0;
-    jumpTimeLimit = 40;
+    jumpTimeLimit = 20;
     vertVelocity = 0;
     vx: number = 0;
     vy: number = 0;
@@ -146,7 +146,6 @@ export class Player {
             this.vertVelocity -= this.currentGravity;
         }
 
-        //this.handleCollision();
         this.handleY(tree);
         this.updatePos();
         this.updateSpritePos();
@@ -163,6 +162,7 @@ export class Player {
         const collidedX: BaseObject[] | false = tree.find(this.sidePos);
         if(collidedX) {
             this.seperateX(collidedX[0]);
+            this.debugHighlight(collidedX);
         } else {
             this.canMove.right = true;
             this.canMove.left = true;
@@ -183,7 +183,7 @@ export class Player {
         if(this.jumpTime < this.jumpTimeLimit) {
             this.currentGravity = 0;
             this.jumpTime++;
-            this.vertVelocity = this.jumpIntensity / 2;
+            this.vertVelocity = this.jumpIntensity;
         } else {
             this.jumpEnd();
         }

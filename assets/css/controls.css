@@ -1,0 +1,46 @@
+
+#ui > #controls {
+    padding: 30px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    width: var(--w);
+    display: flex;
+    flex-direction: row;
+}
+
+#ui > #controls #l {
+    margin-left: 0;
+    margin-right: auto;
+}
+
+
+#ui > #controls #r {
+    margin-right: 0;
+    margin-left: auto;
+}
+
+#ui > #controls button {
+    margin: 0;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+}
+
+#ui > #controls img {
+    width: 50px;
+    height: 50px;
+}
+
+#ui > #controls #down img {
+    transform: rotate(270deg);
+}
+
+#ui > #controls #right img {
+    transform: rotate(180deg);
+}
+
+#ui > #controls #up img {
+    transform: rotate(90deg);
+}
