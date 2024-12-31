@@ -32,6 +32,10 @@ export class Player {
     lvx: number = 0;
     lvy: number = 0;
     playerSprite: Sprite;
+    canMove = {
+        left: true,
+        right: true,
+    };
     pos: QuadtreeBox = {
         x: halfWidth,
         y: halfHeight + halfHeight / 4,
@@ -72,7 +76,7 @@ export class Player {
     }
 
     calculateOverlapX(o: BaseObject): number {
-        return Math.max(0, Math.min(this.pos.maxX, o.maxX) - Math.max(this.pos.x, o.x))
+        return Math.max(0, Math.min(this.pos.maxX, o.maxX) - Math.max(this.pos.x, o.x));
     }
       
     calculateOverlapY(o: BaseObject): number {
@@ -80,10 +84,18 @@ export class Player {
     }
 
     seperateX(o: BaseObject) {
-        const overlapX = this.calculateOverlapX(o) + Math.abs(this.lvx);
-        this.moveRight(this.pos.x < o.x ? -overlapX : overlapX);
-    }
+        const overlapX = this.calculateOverlapX(o);
+        if(this.pos.x < o.x) {
+            // right
+            this.canMove.right = false;
+            this.moveLeft(overlapX);
+        } else {
+            // left
+            this.canMove.left = false;
+            this.moveRight(overlapX);
+        }
 
+    }
 
     seperateY(o: BaseObject) {
         const overlapY = this.calculateOverlapY(o);
@@ -96,7 +108,6 @@ export class Player {
             this.currentGravity = this.gravity;
         } else if(this.pos.y < o.y && this.vertVelocity < 0) {
             // standing on ground or touching side
-            console.log(0)
             this.jumpTime = 0;
             this.vertVelocity = 0;
         } else if(this.vy < 0) {
@@ -110,35 +121,55 @@ export class Player {
         }
     }
 
-    tick() {
-        this.lvx = this.vx;
-        this.lvy = this.vy;
+    updatePos() {
         this.pos.x += this.vx;
         this.pos.y += this.vy;
         this.sidePos.x += this.vx;
         this.sidePos.y += this.vy;
-
-        this.worldContainer.position.y -= this.vy;
-        this.worldContainer.position.x -= this.vx;
-        this.vy = 0;
-        this.vx = 0;
-
         this.pos.maxX = this.pos.x + this.pos.width;
         this.pos.maxY = this.pos.y + this.pos.height;
         this.sidePos.maxX = this.sidePos.x + this.sidePos.width;
         this.sidePos.maxY = this.sidePos.y + this.sidePos.height;
+    }
+
+    updateSpritePos() {
+        this.worldContainer.position.x -= this.vx;
+        this.worldContainer.position.y -= this.vy;
+    }
+
+    tick() {
+        const tree = this.getTree();
+        this.lvx = this.vx;
+        this.lvy = this.vy;
+
         if(this.gravityEnabled) {
             this.vertVelocity -= this.currentGravity;
+        }
 
-            this.handleCollision();
+        //this.handleCollision();
+        this.handleY(tree);
+        this.updatePos();
+        this.updateSpritePos();
+        this.vx = 0;
+        this.vy = 0;
+        this.handleX(tree);
+        this.updatePos();
+        this.updateSpritePos();
+        this.vx = 0;
+        this.vy = 0;
+    }
+
+    handleX(tree: Quadtree) {
+        const collidedX: BaseObject[] | false = tree.find(this.sidePos);
+        if(collidedX) {
+            this.seperateX(collidedX[0]);
+        } else {
+            this.canMove.right = true;
+            this.canMove.left = true;
         }
     }
 
-    handleCollision() {
-        const tree = this.getTree();
-        const collidedX: BaseObject[] | false = tree.find(this.sidePos);
-        if(collidedX) this.seperateX(collidedX[0]);
-
+    handleY(tree: Quadtree) {
         const collidedY: BaseObject[] | false = tree.find(this.pos);
         if(collidedY) {
             this.seperateY(collidedY[0]);
@@ -172,10 +203,12 @@ export class Player {
     }
 
     moveLeft(s: number) {
+        if(!this.canMove.left) return;
         this.vx -= s;
     }
 
     moveRight(s: number) {
+        if(!this.canMove.right) return;
         this.vx += s;
     }
 }
