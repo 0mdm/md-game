@@ -67,6 +67,14 @@ export class Player {
         app.stage.addChild(this.playerSprite);
     }
 
+    hide() {
+        this.playerSprite.visible = false;
+    }
+
+    show() {
+        this.playerSprite.visible = true;
+    }
+
     enableGravity() {
         this.gravityEnabled = true;
     }
@@ -80,7 +88,7 @@ export class Player {
     }
       
     calculateOverlapY(o: BaseObject): number {
-        return Math.max(0, Math.min(this.pos.y, o.y) - Math.max(this.pos.maxY, o.maxY));
+        return Math.max(0, Math.min(this.pos.maxY, o.maxY) - Math.max(this.pos.y, o.y));
     }
 
     seperateX(o: BaseObject) {
@@ -99,7 +107,7 @@ export class Player {
 
     seperateY(o: BaseObject) {
         const overlapY = this.calculateOverlapY(o);
-        this.moveUp(this.pos.y > o.y ? overlapY : -overlapY + this.gravity);
+        this.moveUp(this.pos.y < o.y ? overlapY : -overlapY);
         if(this.pos.y > o.y && this.vertVelocity > 0) {
             // hit head
             this.jumpTime = this.jumpTimeLimit;
@@ -175,7 +183,6 @@ export class Player {
             this.seperateY(collidedY[0]);
             this.debugHighlight(collidedY);
         }
-
         this.moveDown(-this.vertVelocity);
     }
 

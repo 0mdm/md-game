@@ -110,3 +110,11 @@ export function sp(x: number, y: number, width: number, height: number, color: n
   s.zIndex = -1;
   return s;
 }
+
+export function toggleElement(el: HTMLElement, bool: boolean, type: string = "block") {
+  if(bool) {
+    el.style.display = el.getAttribute("data-display")!;
+  } else {
+    el.style.display = "none";
+  }
+}

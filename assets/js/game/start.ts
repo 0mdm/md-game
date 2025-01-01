@@ -1,7 +1,7 @@
 import { app } from "../main/app";
 import { World } from "../lib/world";
 
-const world = new World({
+export const world = new World({
     startLevel: "start",
 });
 

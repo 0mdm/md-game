@@ -43,3 +43,11 @@ body {
 #ui > * {
     margin: auto;
 }
+
+img {
+    pointer-events: none;
+}
+
+.hidden {
+    display: none;
+}
