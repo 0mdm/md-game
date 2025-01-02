@@ -19,7 +19,20 @@ function toggleMenu() {
 }
 
 const levelEditor = $("#ui > #menu-overlay #level-editor");
+const levelEditor2 = $("#ui > #level-editor") as HTMLDivElement;
+const back = $("#ui > #level-editor #back") as HTMLButtonElement;
+
+back.onpointerup = function() {
+    toggleElement(levelEditor2, isMenuOpened);
+    toggleMenu();
+    player.show();
+    player.enableGravity();
+    toggleElement(menuBar, isMenuOpened);
+    toggleElement(controls, isMenuOpened);
+};
+
 levelEditor.addEventListener("pointerup", e => {
+    toggleElement(levelEditor2, isMenuOpened);
     toggleMenu();
     toggleElement(menuBar, isMenuOpened);
     toggleElement(controls, isMenuOpened);
@@ -27,3 +40,4 @@ levelEditor.addEventListener("pointerup", e => {
     player.hide();
     enableLevelEditor();
 });
+

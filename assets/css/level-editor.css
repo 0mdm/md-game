@@ -1,0 +1,10 @@
+
+#ui > #level-editor {
+    border: 1px solid red;
+    height: var(--h);
+}
+
+#ui > #level-editor #blocks {
+    border: 1px solid green;
+    height: 100px;
+}

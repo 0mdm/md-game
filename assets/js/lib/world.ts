@@ -69,22 +69,26 @@ export class World {
     setKeymap() {
         const self = this;
         this.keymap.key("#", (x, y) => {
-            const s = new Sprite(Texture.WHITE);
-            s.position.set(x * 16, y * 16);
-            s.scale.set(16);
-            s.tint = 0x1ae9f0;
-            this.container.addChild(s);
-        
-            const o = new BaseObject({
-                x: s.x,
-                y: s.y,
-                width: 16,
-                height: 16,
-                sprite: s,
-            });
-
-            this.container.addChild(o.sprite);
-            self.keymapInsert(o, s);
+            self.addBlock(x, y, Texture.WHITE);
         });
+    }
+
+    addBlock(x: number, y: number, t: Texture) {
+        const s = new Sprite(t);
+        s.position.set(x * 16, y * 16);
+        s.scale.set(16);
+        s.tint = 0x1ae9f0;
+        this.container.addChild(s);
+
+        const o = new BaseObject({
+            x: s.x,
+            y: s.y,
+            width: 16,
+            height: 16,
+            sprite: s,
+        });
+
+        this.container.addChild(o.sprite);
+        this.keymapInsert(o, s);
     }
 }

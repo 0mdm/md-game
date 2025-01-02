@@ -7,6 +7,7 @@
 
     <link rel="stylesheet" href="/assets/css/main.css">
     <link rel="stylesheet" href="/assets/css/controls.css">
+    <link rel="stylesheet" href="/assets/css/level-editor.css">
     <script defer src="/assets/js/main/loader" type="module"></script>
 </head>
 <body>
@@ -35,6 +36,12 @@
         </div>
         <div id="menu-overlay" class="hidden" data-display="flex">
             <button id="level-editor">Level Editor :)</button>
+        </div>
+        <div id="level-editor" class="hidden" data-display="block">
+            <button id="back">Back</button>
+            <div id="blocks">
+                <button id="basic-block">Basic block</button>
+            </div>
         </div>
     </div>
     <canvas id="c">
