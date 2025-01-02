@@ -37,7 +37,7 @@ export class PanController {
         const x = e.movementX;
         const y = e.movementY;
 
-        this.onPan(x, y);
+        this.onPan(x, y, e.pageX, e.pageY);
     }
 
     touchMove(e: Touch) {
@@ -48,11 +48,11 @@ export class PanController {
           this.lx = e.pageX;
           this.ly = e.pageY;
     
-          this.onPan(this.x, this.y);
+          this.onPan(this.x, this.y, e.pageX, e.pageY);
         }
     }
     
-    onPan: (x: number, y: number) => void = () => undefined;
+    onPan: (x: number, y: number, px: number, py: number) => void = () => undefined;
 
     down(e: PointerEvent) {
         if(this.isDown) return;
