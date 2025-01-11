@@ -228,6 +228,16 @@ export class Player {
         if(!this.canMove.right) return;
         this.vx += s;
     }
+
+    disable() {
+        this.disableGravity();
+        this.hide();
+    }
+
+    enable() {
+        this.enableGravity();
+        this.show();
+    }
 }
 /*
 export class GameObject {

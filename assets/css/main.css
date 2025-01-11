@@ -55,3 +55,23 @@ img {
 .selected {
     background: yellow;
 }
+
+#ui > #menu-bar {
+    display: flex;
+    flex-direction: row;
+    width: min(90vw, 500px);
+    border: 2px solid black;
+    margin-top: 2px;
+    justify-content: space-evenly;
+}
+
+#ui > #menu-bar > button {
+    flex-grow: 1;
+    border: 2px outset black;
+    color: teal;
+    background-color: white;
+}
+#ui > #menu-bar > button:active {
+    border: 2px inset black;
+    background-color: #eeeeee;
+}

@@ -23,10 +23,19 @@ const moving = {
     right: false,
 };
 
+var controlsIsDisabled = false;
 var popupShown = false;
 var isTabActive = true;
 var lastUpdate = Date.now();
 const expectedFPS = 1000 / 30;
+
+export function disableControls() {
+    controlsIsDisabled = true;
+}
+
+export function enableControls() {
+    controlsIsDisabled = false;
+}
 
 addEventListener("visibilitychange", e => {
     if(document.hidden) {
@@ -40,6 +49,7 @@ setInterval(() => {
     const current = Date.now();
     const deltaTime = (current - lastUpdate) / expectedFPS;
     lastUpdate = current;
+    if(controlsIsDisabled) return;
     if(deltaTime > 1 && !popupShown && isTabActive) {
         popupShown = true;
         console.log("Please turn off low-power mode. It messes with the game");

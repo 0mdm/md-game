@@ -118,3 +118,22 @@ export function toggleElement(el: HTMLElement, bool: boolean, type: string = "bl
     el.style.display = "none";
   }
 }
+
+export interface BtnList {
+  arr: HTMLButtonElement[];
+  addTo: (el: HTMLElement) => void;
+}
+
+export function btnList(arr: HTMLButtonElement[], up?: () => void) {
+  function addTo(el: HTMLElement) {
+    for(const btn of arr) el.appendChild(btn);
+  }
+
+  if(up)
+    for(const btn of arr) btn.addEventListener("pointerup", up);
+
+  return {
+    arr,
+    addTo,
+  } as BtnList;
+}
