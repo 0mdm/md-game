@@ -51,3 +51,7 @@ img {
 .hidden {
     display: none;
 }
+
+.selected {
+    background: yellow;
+}

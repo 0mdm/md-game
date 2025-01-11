@@ -1,6 +1,6 @@
 import { $, toggleElement } from "../../lib/util";
 import { player } from "../start";
-import { enableLevelEditor } from "./level-editor";
+import { enableLevelEditor, panBack } from "./level-editor";
 
 var isMenuOpened = false;
 
@@ -23,6 +23,7 @@ const levelEditor2 = $("#ui > #level-editor") as HTMLDivElement;
 const back = $("#ui > #level-editor #back") as HTMLButtonElement;
 
 back.onpointerup = function() {
+    panBack();
     toggleElement(levelEditor2, isMenuOpened);
     toggleMenu();
     player.show();

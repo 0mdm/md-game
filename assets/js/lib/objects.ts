@@ -48,9 +48,9 @@ export class Player {
         x: halfWidth,
         y: halfHeight + halfHeight / 4 + 2,
         width: 16,
-        height: 10,
+        height: 8,
         maxX: halfWidth - 16,
-        maxY: halfHeight + 10,
+        maxY: halfHeight + 8,
     };
     getTree: () => Quadtree;
 
@@ -83,36 +83,38 @@ export class Player {
         this.gravityEnabled = false;
     }
 
-    calculateOverlapX(o: BaseObject): number {
+    /*calculateOverlapX(o: BaseObject): number {
         return Math.max(0, Math.min(this.pos.maxX, o.maxX) - Math.max(this.pos.x, o.x));
     }
       
     calculateOverlapY(o: BaseObject): number {
         return Math.max(0, Math.min(this.pos.maxY, o.maxY) - Math.max(this.pos.y, o.y));
+    }*/
+
+    tpX(x: number) {
+        this.vx = x - this.pos.maxX;
     }
 
     seperateX(o: BaseObject) {
-        const overlapX = this.calculateOverlapX(o);
         if(this.pos.x < o.x) {
             // right
             this.canMove.right = false;
-            this.moveLeft(overlapX);
+            this.vx = o.x - this.pos.maxX;
+            //this.moveLeft(overlapX);
         } else {
             // left
             this.canMove.left = false;
-            this.moveRight(overlapX);
+            this.vx = o.maxX - this.pos.x;
         }
 
     }
 
     seperateY(o: BaseObject) {
-        const overlapY = this.calculateOverlapY(o);
-        this.moveUp(this.pos.y < o.y ? overlapY : -overlapY);
+        this.moveUp(this.pos.y < o.y ? this.pos.maxY - o.y : this.pos.y - o.maxY);
         if(this.pos.y > o.y && this.vertVelocity > 0) {
             // hit head
             this.jumpTime = this.jumpTimeLimit;
             this.vertVelocity = this.gravity;
-            this.moveUp(this.vertVelocity)
             this.currentGravity = this.gravity;
         } else if(this.pos.y < o.y && this.vertVelocity < 0) {
             // standing on ground or touching side
@@ -129,15 +131,23 @@ export class Player {
         }
     }
 
-    updatePos() {
-        this.pos.x += this.vx;
-        this.pos.y += this.vy;
-        this.sidePos.x += this.vx;
-        this.sidePos.y += this.vy;
+    updateX(x: number) {
+        this.pos.x += x;
+        this.sidePos.x += x;
         this.pos.maxX = this.pos.x + this.pos.width;
-        this.pos.maxY = this.pos.y + this.pos.height;
         this.sidePos.maxX = this.sidePos.x + this.sidePos.width;
+    }
+
+    updateY(y: number) {
+        this.pos.y += y;
+        this.sidePos.y += y;
+        this.pos.maxY = this.pos.y + this.pos.height;
         this.sidePos.maxY = this.sidePos.y + this.sidePos.height;
+    }
+
+    updatePos(x: number, y: number) {
+        this.updateX(x);
+        this.updateY(y);
     }
 
     updateSpritePos() {
@@ -155,12 +165,12 @@ export class Player {
         }
 
         this.handleY(tree);
-        this.updatePos();
+        this.updatePos(this.vx, this.vy);
         this.updateSpritePos();
         this.vx = 0;
         this.vy = 0;
         this.handleX(tree);
-        this.updatePos();
+        this.updatePos(this.vx, this.vy);
         this.updateSpritePos();
         this.vx = 0;
         this.vy = 0;

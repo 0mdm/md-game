@@ -1,7 +1,7 @@
 import { Container, Sprite, Texture } from "pixi.js";
 import { Keymap } from "./keymap";
 import { BaseObject, Quadtree, setQuadreeDebug } from "./quadtree";
-import { Player, PlayerOpts } from "./objects";
+import { Player, PlayerOpts, QuadtreeBox } from "./objects";
 import { app } from "../main/app";
 
 interface TreeMap {
@@ -25,6 +25,10 @@ export class World {
     keymap = new Keymap();
     player: Player;
     cLevel: string; // current level
+
+    getTree(): Quadtree {
+        return this.trees[this.cLevel];
+    }
 
     constructor(o: WorldOpts) {
         this.cLevel = o.startLevel;
@@ -90,5 +94,18 @@ export class World {
 
         this.container.addChild(o.sprite);
         this.keymapInsert(o, s);
+    }
+
+    addBlockIfEmpty(x: number, y: number, t: Texture) {
+        const o: QuadtreeBox = {
+            x: x,
+            y: y,
+            width: 16,
+            height: 16,
+            maxX: x + 16,
+            maxY: y + 16,
+        };
+
+        console.log(this.getTree().find(o, true));
     }
 }
