@@ -7,6 +7,7 @@ import { createBackBtn, menuBar } from "./menu";
 
 const pan = new PanController({
     touchEl: document.documentElement,
+    enabled: false
 });
 
 const levelEditor = $("#ui > #level-editor") as HTMLElement;
@@ -28,6 +29,7 @@ export function enableLevelEditor() {
     disableControls();
     
     pan.onPan = onPan;
+    pan.enable();
 }
 
 function disableLevelEditor() {
@@ -40,7 +42,10 @@ function disableLevelEditor() {
     cy = 0;
     menuBar.style.display = "flex";
 
-    pan.onPan = () => undefined;
+    pan.disable();
+    pan.setGrabCursor("grab", "grabbing");
+    basicBlock.style.color = "black";
+    basicBlockChosen = false;
 }
 
 var basicBlockChosen = false;
@@ -50,17 +55,20 @@ basicBlock.onpointerup = function() {
     basicBlockChosen = !basicBlockChosen;
 
     if(basicBlockChosen) {
+        pan.setGrabCursor("crosshair", "crosshair");
         pan.onPan = placeBlock;
         basicBlock.style.color = "red";
     } else {
+        pan.setGrabCursor("grab", "grabbing");
         pan.onPan = onPan;
         basicBlock.style.color = "black";
     }
 }
 
 function placeBlock(dx: number, dy: number, px: number, py: number) {
-    const x = Math.round((Math.round((px - player.pos.x) / 16) * 16 + player.pos.x - Math.round(world.container.position.x)) / 16);
-    const y = Math.round((Math.round((py - player.pos.y) / 16) * 16 + player.pos.y - Math.round(world.container.position.y)) / 16);
-
+    const worldX = px - world.container.position.x;
+    const worldY = py - world.container.position.y;
+    const x = Math.floor(worldX / 16);
+    const y = Math.floor(worldY / 16);
     world.addBlock(x, y, Texture.WHITE);
 }
