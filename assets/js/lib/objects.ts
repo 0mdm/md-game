@@ -46,9 +46,9 @@ export class Player {
         x: halfWidth,
         y: halfHeight + halfHeight / 4 + 2,
         width: 16,
-        height: 8,
+        height: 7,
         maxX: halfWidth - 16,
-        maxY: halfHeight + 8,
+        maxY: halfHeight + 7,
     };
     getTree: () => Quadtree;
 
@@ -99,7 +99,14 @@ export class Player {
     }
 
     seperateY(o: BaseObject, deltaTime: number) {
-        this.moveUp(this.pos.y < o.y ? this.pos.maxY - o.y : this.pos.y - o.maxY);
+        if(this.pos.y < o.y) {
+            // floor
+            this.moveUp((this.pos.maxY - o.y) / deltaTime);
+        } else {
+            // ceiling
+            this.moveUp((this.pos.y - o.maxY));
+        }
+
         if(this.pos.y > o.y && this.vertVelocity > 0) {
             // hit head
             this.jumpTime = this.jumpTimeLimit;
@@ -146,7 +153,7 @@ export class Player {
         const tree = this.getTree();
 
         if(this.gravityEnabled) {
-            this.vertVelocity -= this.currentGravity;
+            this.vertVelocity -= this.currentGravity * deltaTime;
         }
 
         this.handleY(tree, deltaTime);
@@ -165,7 +172,6 @@ export class Player {
         const collidedX: BaseObject[] | false = tree.find(this.sidePos);
         if(collidedX) {
             this.seperateX(collidedX[0]);
-            //this.debugHighlight(collidedX);
         } else {
             this.canMove.right = true;
             this.canMove.left = true;
@@ -176,15 +182,15 @@ export class Player {
         const collidedY: BaseObject[] | false = tree.find(this.pos);
         if(collidedY) {
             this.seperateY(collidedY[0], deltaTime);
-            //this.debugHighlight(collidedY);
         }
-        this.moveDown(-this.vertVelocity);
+
+        this.moveDown(-this.vertVelocity * deltaTime);
     }
 
     jump(deltaTime: number) {
         if(this.jumpTime < this.jumpTimeLimit) {
             this.currentGravity = 0;
-            this.jumpTime++;
+            this.jumpTime += deltaTime;
             this.vertVelocity = this.jumpIntensity;
         } else {
             this.jumpEnd();
@@ -224,23 +230,3 @@ export class Player {
         this.show();
     }
 }
-/*
-export class GameObject {
-    sprite: Sprite;
-    isOversized = false;
-
-    constructor(sprite: Sprite) {
-        this.sprite = sprite;
-    }
-
-    getQuadtreeBounds(): QuadtreeBox {
-        return {
-            x: this.sprite.position.x,
-            y: this.sprite.position.y,
-            width: this.sprite.width,
-            height: this.sprite.height,
-            maxX: this.sprite.bounds.maxX,
-            maxY: this.sprite.bounds.maxY,
-        };
-    }
-}*/

@@ -45,21 +45,13 @@ addEventListener("visibilitychange", e => {
     }
 });
 
-var deltaTime = 1;
-function fpsLoop() {
-    const current = performance.now();
-    deltaTime = (current - lastUpdate) / expectedFPS;
-    lastUpdate = current;
-}
-
 function loop() {
     const current = performance.now();
     const rDelta = current - lastUpdate;
     const deltaTime = rDelta / expectedFPS;
     lastUpdate = current;
-    const lag = Math.max(expectedFPS - rDelta, 0);
 
-    if(controlsIsDisabled) return;
+    if(controlsIsDisabled) return requestAnimationFrame(loop);
     if(deltaTime > 1 && !popupShown && isTabActive) {
         popupShown = true;
         console.log("Please turn off low-power mode. It messes with the game");
@@ -75,10 +67,12 @@ function loop() {
     if(moving.right) player.moveRight(speed * deltaTime);
     player.tick(deltaTime);
 
-    setTimeout(loop, expectedFPS);
+    requestAnimationFrame(loop);
 }
 
 loop();
+
+//setInterval(loop, expectedFPS);
 
 addEventListener("keydown", e => {
     if(e.key == "w") moving.up = true;
