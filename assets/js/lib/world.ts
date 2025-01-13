@@ -111,7 +111,7 @@ function setBlock(s: Sprite, x: number, y: number) {
 
 type BlockMesh = [Sprite, BaseObject];
 
-const spikeT = await Assets.load("assets/sprites/blocks/spike.png");
+// const spikeT = await Assets.load("assets/sprites/blocks/spike.png");
 
 const blockTypes: {[index: string]: (x: number, y: number) => BlockMesh} = {
     basic(x: number, y: number): BlockMesh {
@@ -133,8 +133,9 @@ const blockTypes: {[index: string]: (x: number, y: number) => BlockMesh} = {
         return [s, o];
     },
     spike(x: number, y: number): BlockMesh {
-        const s = new Sprite(spikeT);
-        s.scale.set(0.5);
+        const s = new Sprite(Texture.WHITE);
+        s.tint = 0xff0000;
+        s.scale.set(16);
         s.position.set(x * 16, y * 16);
 
         const o = new BaseObject({
@@ -144,7 +145,6 @@ const blockTypes: {[index: string]: (x: number, y: number) => BlockMesh} = {
             height: 16,
             sprite: s,
             onTouch() {
-                s.tint = 0x000000;
                 $("#menu-bar").appendChild($$("h1", {
                     style: {
                         color: `rgb(${rand255()}, ${rand255()}, ${rand255()})`,
