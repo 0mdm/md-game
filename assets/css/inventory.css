@@ -1,0 +1,5 @@
+
+#ui > #inventory {
+    background-color: blue;
+    height: var(--h);
+}

@@ -39,6 +39,7 @@ interface BaseObjectOpts {
     width: number;
     height: number;
     sprite: Sprite;
+    onTouch?: () => void;
 }
 
 export class BaseObject {
@@ -50,6 +51,7 @@ export class BaseObject {
     maxY: number;
     sprite: Sprite;
     id: number;
+    onTouch?: () => void;
 
     constructor(o: BaseObjectOpts) {
         this.x = o.x;
@@ -60,6 +62,7 @@ export class BaseObject {
         this.maxY = this.y + this.height;
         this.sprite = o.sprite;
         this.id = idCounter++;
+        this.onTouch = o.onTouch;
     }
 }
 
@@ -134,7 +137,6 @@ export class Quadtree {
                     if(node.insert(obj)) return true;
                 
                 this.children.push(obj);
-                console.log(1);
                 return true;
             } else {
                 // leaf
@@ -156,7 +158,7 @@ export class Quadtree {
                     if(result) return result;
                 }
 
-                if(e.width > this.width) {
+                /*if(e.width > this.width) {
                     const collisions = [];
                     for(const node of this.nodes) {
                         for(const box of node.children) {
@@ -164,12 +166,14 @@ export class Quadtree {
                         }
                     }
 
+                    console.log(collisions)
+
                     if(collisions.length == 0) return false;
                     return collisions;
-                }
+                }*/
             } else {
-                if(this.children.length == 0) {
-                    const collisions = [];
+                /*if(this.children.length == 0) {
+                    const collisions: BaseObject[] = [];
                     for(const node of this.nodes) {
                         for(const box of node.children) {
                             if(isColliding(e, box)) collisions.push(box);
@@ -178,7 +182,12 @@ export class Quadtree {
 
                     if(collisions.length == 0) return false;
                     return collisions;
-                }
+                }*/
+                if(this.children.length == 0) return false;
+
+                for(const boxes of this.children)
+                    boxes.onTouch?.();
+                
                 return this.children;
             }
         }

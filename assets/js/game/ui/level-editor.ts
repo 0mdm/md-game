@@ -70,5 +70,5 @@ function placeBlock(dx: number, dy: number, px: number, py: number) {
     const worldY = py - world.container.position.y;
     const x = Math.floor(worldX / 16);
     const y = Math.floor(worldY / 16);
-    world.addBlock(x, y, Texture.WHITE);
+    world.addBlock(x, y, "basic");
 }

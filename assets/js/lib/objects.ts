@@ -29,8 +29,6 @@ export class Player {
     vertVelocity = 0;
     vx: number = 0;
     vy: number = 0;
-    lvx: number = 0;
-    lvy: number = 0;
     playerSprite: Sprite;
     canMove = {
         left: true,
@@ -83,14 +81,6 @@ export class Player {
         this.gravityEnabled = false;
     }
 
-    /*calculateOverlapX(o: BaseObject): number {
-        return Math.max(0, Math.min(this.pos.maxX, o.maxX) - Math.max(this.pos.x, o.x));
-    }
-      
-    calculateOverlapY(o: BaseObject): number {
-        return Math.max(0, Math.min(this.pos.maxY, o.maxY) - Math.max(this.pos.y, o.y));
-    }*/
-
     tpX(x: number) {
         this.vx = x - this.pos.maxX;
     }
@@ -100,7 +90,6 @@ export class Player {
             // right
             this.canMove.right = false;
             this.vx = o.x - this.pos.maxX;
-            //this.moveLeft(overlapX);
         } else {
             // left
             this.canMove.left = false;
@@ -109,7 +98,7 @@ export class Player {
 
     }
 
-    seperateY(o: BaseObject) {
+    seperateY(o: BaseObject, deltaTime: number) {
         this.moveUp(this.pos.y < o.y ? this.pos.maxY - o.y : this.pos.y - o.maxY);
         if(this.pos.y > o.y && this.vertVelocity > 0) {
             // hit head
@@ -120,8 +109,6 @@ export class Player {
             // standing on ground or touching side
             this.jumpTime = 0;
             this.vertVelocity = 0;
-        } else if(this.vy < 0) {
-            // when hold jumping and hitting head
         }
     }
 
@@ -155,16 +142,14 @@ export class Player {
         this.worldContainer.position.y -= this.vy;
     }
 
-    tick() {
+    tick(deltaTime: number) {
         const tree = this.getTree();
-        this.lvx = this.vx;
-        this.lvy = this.vy;
 
         if(this.gravityEnabled) {
             this.vertVelocity -= this.currentGravity;
         }
 
-        this.handleY(tree);
+        this.handleY(tree, deltaTime);
         this.updatePos(this.vx, this.vy);
         this.updateSpritePos();
         this.vx = 0;
@@ -180,23 +165,23 @@ export class Player {
         const collidedX: BaseObject[] | false = tree.find(this.sidePos);
         if(collidedX) {
             this.seperateX(collidedX[0]);
-            this.debugHighlight(collidedX);
+            //this.debugHighlight(collidedX);
         } else {
             this.canMove.right = true;
             this.canMove.left = true;
         }
     }
 
-    handleY(tree: Quadtree) {
+    handleY(tree: Quadtree, deltaTime: number) {
         const collidedY: BaseObject[] | false = tree.find(this.pos);
         if(collidedY) {
-            this.seperateY(collidedY[0]);
-            this.debugHighlight(collidedY);
+            this.seperateY(collidedY[0], deltaTime);
+            //this.debugHighlight(collidedY);
         }
         this.moveDown(-this.vertVelocity);
     }
 
-    jump() {
+    jump(deltaTime: number) {
         if(this.jumpTime < this.jumpTimeLimit) {
             this.currentGravity = 0;
             this.jumpTime++;

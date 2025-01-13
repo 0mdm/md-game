@@ -14,7 +14,7 @@ const leftB = $("#ui > #controls #left") as HTMLButtonElement;
 const downB = $("#ui > #controls #down") as HTMLButtonElement;
 const rightB = $("#ui > #controls #right") as HTMLButtonElement;
 
-const speed = 8;
+const speed = 4;
 
 const moving = {
     up: false,
@@ -26,8 +26,8 @@ const moving = {
 var controlsIsDisabled = false;
 var popupShown = false;
 var isTabActive = true;
-var lastUpdate = Date.now();
-const expectedFPS = 1000 / 30;
+var lastUpdate = performance.now();
+const expectedFPS = 1000 / 60;
 
 export function disableControls() {
     controlsIsDisabled = true;
@@ -45,10 +45,20 @@ addEventListener("visibilitychange", e => {
     }
 });
 
-setInterval(() => {
-    const current = Date.now();
-    const deltaTime = (current - lastUpdate) / expectedFPS;
+var deltaTime = 1;
+function fpsLoop() {
+    const current = performance.now();
+    deltaTime = (current - lastUpdate) / expectedFPS;
     lastUpdate = current;
+}
+
+function loop() {
+    const current = performance.now();
+    const rDelta = current - lastUpdate;
+    const deltaTime = rDelta / expectedFPS;
+    lastUpdate = current;
+    const lag = Math.max(expectedFPS - rDelta, 0);
+
     if(controlsIsDisabled) return;
     if(deltaTime > 1 && !popupShown && isTabActive) {
         popupShown = true;
@@ -56,15 +66,19 @@ setInterval(() => {
     }
 
     if(moving.up) {
-        player.jump();
+        player.jump(deltaTime);
     } else {
         player.jumpEnd();
     }
 
     if(moving.left) player.moveLeft(speed * deltaTime);
     if(moving.right) player.moveRight(speed * deltaTime);
-    player.tick();
-}, 1000 / 60);
+    player.tick(deltaTime);
+
+    setTimeout(loop, expectedFPS);
+}
+
+loop();
 
 addEventListener("keydown", e => {
     if(e.key == "w") moving.up = true;

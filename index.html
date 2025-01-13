@@ -8,7 +8,11 @@
     <link rel="stylesheet" href="/assets/css/main.css">
     <link rel="stylesheet" href="/assets/css/controls.css">
     <link rel="stylesheet" href="/assets/css/level-editor.css">
+    <link rel="stylesheet" href="/assets/css/inventory.css">
     <script defer src="/assets/js/main/loader" type="module"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+    <script>eruda.init();</script>
 </head>
 <body>
    <main>
@@ -32,7 +36,8 @@
             </div>
         </div>
         <div id="menu-bar"></div>
-        <div id="level-editor" class="hidden" data-display="block">
+        <div id="inventory" class="hidden"></div>
+        <div id="level-editor" class="hidden">
             <div id="blocks">
                 <button id="basic-block">Basic block</button>
             </div>
