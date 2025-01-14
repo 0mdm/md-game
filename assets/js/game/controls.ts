@@ -45,8 +45,17 @@ addEventListener("visibilitychange", e => {
     }
 });
 
+var tabFocusLost = false;
+
 function loop() {
     const current = performance.now();
+
+    if(tabFocusLost) {
+        tabFocusLost = false;
+        lastUpdate = current + 1;
+        console.log(0)
+    }
+
     const rDelta = current - lastUpdate;
     const deltaTime = rDelta / expectedFPS;
     lastUpdate = current;
@@ -69,6 +78,12 @@ function loop() {
 
     requestAnimationFrame(loop);
 }
+
+addEventListener("visibilitychange", () => {
+    if(document.visibilityState == "hidden") {
+        tabFocusLost = true;
+    }
+});
 
 loop();
 

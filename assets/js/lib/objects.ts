@@ -1,4 +1,4 @@
-import { Container, ObservablePoint, Sprite, squaredDistanceToLineSegment, Texture } from "pixi.js";
+import { Container, measureHtmlText, ObservablePoint, Sprite, squaredDistanceToLineSegment, Texture, v8_0_0 } from "pixi.js";
 import { halfHeight, halfWidth } from "../main/canvas";
 import { app } from "../main/app";
 import { BaseObject, Quadtree } from "./quadtree";
@@ -35,6 +35,7 @@ export class Player {
     jumpTime = 0;
     jumpTimeLimit = 20;
     vertVelocity = 0;
+    vertVelocityLimit = -10;
     vx: number = 0;
     vy: number = 0;
     playerSprite: Sprite;
@@ -52,7 +53,7 @@ export class Player {
     };
     sidePos: QuadtreeBox = {
         x: halfWidth,
-        y: halfHeight + halfHeight / 4 + 2,
+        y: halfHeight + halfHeight / 4 + 3,
         width: 16,
         height: 7,
         maxX: halfWidth - 16,
@@ -113,13 +114,13 @@ export class Player {
 
     }
 
-    seperateY(o: BaseObject, deltaTime: number) {
+    seperateY(o: BaseObject, vDown: number, deltaTime: number) {
         if(this.pos.y < o.y) {
             // floor
-            this.moveUp((this.pos.maxY - o.y) / deltaTime);
+            this.moveUp(this.pos.maxY - o.y + vDown / deltaTime);
         } else {
             // ceiling
-            this.moveUp((this.pos.y - o.maxY) / deltaTime);
+            this.moveUp(this.pos.y - o.maxY + vDown);
         }
 
         if(this.pos.y > o.y && this.vertVelocity > 0) {
@@ -159,9 +160,17 @@ export class Player {
         this.updateY(y);
     }
 
-    updateSpritePos(x: number, y: number) {
+    updateSpriteX(x: number) {
         this.worldContainer.position.x -= x;
+    }
+
+    updateSpriteY(y: number) {
         this.worldContainer.position.y -= y;
+    }
+
+    updateSpritePos(x: number, y: number) {
+        this.updateSpriteX(x);
+        this.updateSpriteY(y);
     }
 
     tick(deltaTime: number) {
@@ -172,20 +181,21 @@ export class Player {
             event(this);
         }
 
-        if(this.gravityEnabled) {
+        if(this.gravityEnabled && this.vertVelocity > this.vertVelocityLimit) {
             this.vertVelocity -= this.currentGravity * deltaTime;
+            if(this.vertVelocity < this.vertVelocityLimit) this.vertVelocity = this.vertVelocityLimit;
         }
 
         this.handleY(tree, deltaTime);
         this.updatePos(this.vx, this.vy);
         this.updateSpritePos(this.vx, this.vy);
-        this.vx = 0;
         this.vy = 0;
+        this.vx = 0;
+
         this.handleX(tree);
-        this.updatePos(this.vx, this.vy);
-        this.updateSpritePos(this.vx, this.vy);
+        this.updateX(this.vx);
+        this.updateSpriteX(this.vx);
         this.vx = 0;
-        this.vy = 0;
     }
 
     handleX(tree: Quadtree) {
@@ -199,12 +209,14 @@ export class Player {
     }
 
     handleY(tree: Quadtree, deltaTime: number) {
+        const vDown = -this.vertVelocity * deltaTime;
+        this.moveDown(vDown);
+
         const collidedY: BaseObject[] | false = tree.find(this.pos, this);
         if(collidedY) {
-            this.seperateY(collidedY[0], deltaTime);
+            this.seperateY(collidedY[0], vDown, deltaTime);
         }
 
-        this.moveDown(-this.vertVelocity * deltaTime);
     }
 
     jump(deltaTime: number) {
