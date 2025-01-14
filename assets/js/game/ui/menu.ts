@@ -2,10 +2,8 @@ import { btn1 } from "../../lib/ui";
 import { $, btnList } from "../../lib/util";
 import { enableLevelEditor } from "./level-editor";
 import "./inventory";
-import { enableInventory } from "./inventory";
 
-export function createBackBtn(up?: () => void) {
-    if (!up) up = () => {};
+export function createBackBtn(up?: () => void): HTMLButtonElement {
     return btn1("Back", up);
 }
 

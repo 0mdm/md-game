@@ -1,9 +1,10 @@
 import { Assets, Container, Sprite, Texture } from "pixi.js";
 import { Keymap } from "./keymap";
 import { BaseObject, Quadtree, setQuadreeDebug } from "./quadtree";
-import { Player, PlayerOpts, QuadtreeBox } from "./objects";
+import { Player, PlayerOpts, QuadtreeBox, setSpawn } from "./objects";
 import { app } from "../main/app";
 import { $, $$, rand255 } from "./util";
+import { textures } from "../main/canvas";
 
 interface TreeMap {
     [index: string]: Quadtree;
@@ -80,6 +81,11 @@ export class World {
         this.keymap.key("$", (x, y) => {
             self.addBlock(x, y, "spike");
         });
+
+        this.keymap.key("@", (x, y) => {
+            setSpawn(x * 16, y * 16);
+            this.player.tp(x * 16, y * 16);
+        });
     }
 
     addBlock(x: number, y: number, type: string) {
@@ -100,12 +106,11 @@ export class World {
             maxY: y + 16,
         };
 
-        console.log(this.getTree().find(o, true));
     }
 }
 
 function setBlock(s: Sprite, x: number, y: number) {
-    s.scale.set(16);
+    s.scale.set(0.5);
     s.position.set(x * 16, y * 16);
 }
 
@@ -115,9 +120,9 @@ type BlockMesh = [Sprite, BaseObject];
 
 const blockTypes: {[index: string]: (x: number, y: number) => BlockMesh} = {
     basic(x: number, y: number): BlockMesh {
-        const s = new Sprite(Texture.WHITE);
-        s.tint = 0x1ae9f0;
+        const s = new Sprite(textures["blocks/block.png"]);
         setBlock(s, x, y);
+        s.tint = 0x1ae9f0;
 
         const o = new BaseObject({
             x: s.x,
@@ -133,10 +138,9 @@ const blockTypes: {[index: string]: (x: number, y: number) => BlockMesh} = {
         return [s, o];
     },
     spike(x: number, y: number): BlockMesh {
-        const s = new Sprite(Texture.WHITE);
+        const s = new Sprite(textures["blocks/spike.png"]);
         s.tint = 0xff0000;
-        s.scale.set(16);
-        s.position.set(x * 16, y * 16);
+        setBlock(s, x, y);
 
         const o = new BaseObject({
             x: s.x,
@@ -144,13 +148,15 @@ const blockTypes: {[index: string]: (x: number, y: number) => BlockMesh} = {
             width: 16,
             height: 16,
             sprite: s,
-            onTouch() {
+            onTouch(e?: Player) {
                 $("#menu-bar").appendChild($$("h1", {
                     style: {
                         color: `rgb(${rand255()}, ${rand255()}, ${rand255()})`,
                     },
                     text: "YOU DIED!"
-                }))
+                }));
+
+                e?.kill();
             },
         })
 

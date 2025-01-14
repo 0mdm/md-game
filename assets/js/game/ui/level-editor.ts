@@ -13,6 +13,7 @@ const pan = new PanController({
 const levelEditor = $("#ui > #level-editor") as HTMLElement;
 const back = createBackBtn(disableLevelEditor);
 levelEditor.appendChild(back);
+
 var cx = 0;
 var cy = 0;
 

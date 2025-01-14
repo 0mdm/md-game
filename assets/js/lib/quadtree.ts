@@ -1,5 +1,5 @@
 import {Container, Sprite, Texture} from "pixi.js";
-import { QuadtreeBox } from "./objects";
+import { Player, QuadtreeBox } from "./objects";
 import { app } from "../main/app";
 import { sp } from "./util";
 
@@ -8,13 +8,6 @@ var debugContainer: Container;
 
 export function setQuadreeDebug(e: Container) {
     debugContainer = e;
-}
-
-function playerCollide(q: Quadtree | QuadtreeBox | BaseObject, p: QuadtreeBox): boolean {
-    return q.x < p.maxX
-    && q.maxX > p.x
-    && q.y > p.maxY
-    && q.maxY < p.y;
 }
 
 function isColliding(q: Quadtree | QuadtreeBox| BaseObject, o: Quadtree | BaseObject | QuadtreeBox): boolean {
@@ -39,7 +32,7 @@ interface BaseObjectOpts {
     width: number;
     height: number;
     sprite: Sprite;
-    onTouch?: () => void;
+    onTouch?: (e?: Player) => void;
 }
 
 export class BaseObject {
@@ -51,7 +44,7 @@ export class BaseObject {
     maxY: number;
     sprite: Sprite;
     id: number;
-    onTouch?: () => void;
+    onTouch?: (e?: Player) => void;
 
     constructor(o: BaseObjectOpts) {
         this.x = o.x;
@@ -150,11 +143,11 @@ export class Quadtree {
 
     once = false;
 
-    find(e: QuadtreeBox, debug = false): false | BaseObject[] {
+    find(e: QuadtreeBox, a?: Player): false | BaseObject[] {
         if(isColliding(this, e)) {
             if(this.isDivided) {
                 for(const node of this.nodes) {
-                    const result = node.find(e, debug);
+                    const result = node.find(e, a);
                     if(result) return result;
                 }
 
@@ -186,7 +179,7 @@ export class Quadtree {
                 if(this.children.length == 0) return false;
 
                 for(const boxes of this.children)
-                    boxes.onTouch?.();
+                    boxes.onTouch?.(a);
                 
                 return this.children;
             }

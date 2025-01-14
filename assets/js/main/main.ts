@@ -1,4 +1,3 @@
-import "./canvas";
 import "./app";
 import "../game/main";
 

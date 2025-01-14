@@ -18,6 +18,14 @@ export interface PlayerOpts {
     getTree: () => Quadtree;
 }
 
+var spawnX = 0;
+var spawnY = 0;
+
+export function setSpawn(x: number, y: number) {
+    spawnX = x;
+    spawnY = y;
+}
+
 export class Player {
     worldContainer: Container;
     jumpIntensity = 2.5;
@@ -50,6 +58,9 @@ export class Player {
         maxX: halfWidth - 16,
         maxY: halfHeight + 7,
     };
+
+    events: ((self: this) => void)[] = [];
+
     getTree: () => Quadtree;
 
     constructor(o: PlayerOpts) {
@@ -81,8 +92,12 @@ export class Player {
         this.gravityEnabled = false;
     }
 
-    tpX(x: number) {
-        this.vx = x - this.pos.maxX;
+    tp(x: number, y: number) {
+        const dx = x - this.pos.x;
+        const dy = y - this.pos.y;
+
+        this.updatePos(dx, dy);
+        this.updateSpritePos(dx, dy);
     }
 
     seperateX(o: BaseObject) {
@@ -104,7 +119,7 @@ export class Player {
             this.moveUp((this.pos.maxY - o.y) / deltaTime);
         } else {
             // ceiling
-            this.moveUp((this.pos.y - o.maxY));
+            this.moveUp((this.pos.y - o.maxY) / deltaTime);
         }
 
         if(this.pos.y > o.y && this.vertVelocity > 0) {
@@ -144,13 +159,18 @@ export class Player {
         this.updateY(y);
     }
 
-    updateSpritePos() {
-        this.worldContainer.position.x -= this.vx;
-        this.worldContainer.position.y -= this.vy;
+    updateSpritePos(x: number, y: number) {
+        this.worldContainer.position.x -= x;
+        this.worldContainer.position.y -= y;
     }
 
     tick(deltaTime: number) {
         const tree = this.getTree();
+
+        for(const event of this.events) {
+            this.events.shift();
+            event(this);
+        }
 
         if(this.gravityEnabled) {
             this.vertVelocity -= this.currentGravity * deltaTime;
@@ -158,18 +178,18 @@ export class Player {
 
         this.handleY(tree, deltaTime);
         this.updatePos(this.vx, this.vy);
-        this.updateSpritePos();
+        this.updateSpritePos(this.vx, this.vy);
         this.vx = 0;
         this.vy = 0;
         this.handleX(tree);
         this.updatePos(this.vx, this.vy);
-        this.updateSpritePos();
+        this.updateSpritePos(this.vx, this.vy);
         this.vx = 0;
         this.vy = 0;
     }
 
     handleX(tree: Quadtree) {
-        const collidedX: BaseObject[] | false = tree.find(this.sidePos);
+        const collidedX: BaseObject[] | false = tree.find(this.sidePos, this);
         if(collidedX) {
             this.seperateX(collidedX[0]);
         } else {
@@ -179,7 +199,7 @@ export class Player {
     }
 
     handleY(tree: Quadtree, deltaTime: number) {
-        const collidedY: BaseObject[] | false = tree.find(this.pos);
+        const collidedY: BaseObject[] | false = tree.find(this.pos, this);
         if(collidedY) {
             this.seperateY(collidedY[0], deltaTime);
         }
@@ -228,5 +248,9 @@ export class Player {
     enable() {
         this.enableGravity();
         this.show();
+    }
+
+    kill() {
+        this.events.push(self => self.tp(spawnX, spawnY));
     }
 }
