@@ -3,6 +3,7 @@ import { halfHeight, halfWidth } from "../main/canvas";
 import { app } from "../main/app";
 import { BaseObject, Quadtree } from "./quadtree";
 import { DynamicObj, DynamicObjOpts } from "./dynamic-object";
+import { $ } from "./util";
 
 export interface QuadtreeBox {
     x: number;
@@ -27,6 +28,12 @@ export function setSpawn(x: number, y: number) {
     spawnY = y;
 }
 
+
+const hpTxt = $("#ui > #stats > #health-c #health") as HTMLParagraphElement;
+const hpEl = $("#ui > #stats > #health-c") as HTMLElement;
+const hpElWidth: number = Number(getComputedStyle(document.documentElement).getPropertyValue("--sw"));
+
+
 export class Player extends DynamicObj {
     worldContainer: Container;
 
@@ -36,9 +43,10 @@ export class Player extends DynamicObj {
             y: halfHeight,
             width: 16,
             height: 16,
-            heightX: 7,
+            heightX: 6,
             texture: o.texture,
             getTree: o.getTree,
+            offsetHeightX: 2,
         };
 
         super(opts);
@@ -54,6 +62,33 @@ export class Player extends DynamicObj {
     }
 
     override kill() {
+        this.respawn();
+    }
+
+    respawn() {
+        this.hp = this.hpMax;
         this.events.push(self => self.tp(spawnX, spawnY));
+        hpTxt.textContent = `${this.hp}/${this.hpMax}`;
+        //updateHpBar(this.hpMax, this.hp);
+    }
+
+    override hurt(dmg: number) {
+        if(this.invincible) return;
+
+        this.hp -= Math.round(dmg);
+        hpTxt.textContent = `${this.hp}/${this.hpMax}`;
+
+        if(this.hp <= 0) return this.kill();
+
+        //updateHpBar(this.hpMax, this.hp);
+        this.activateInvincibility(50);
+    }
+}
+
+function updateHpBar(hpMax: number, hp: number) {
+    if((hpMax - hp) == 0) {
+        hpEl.style.width = hpElWidth.toString();
+    } else {
+        hpEl.style.width = (Math.ceil(hpElWidth / (hpMax - hp))).toString();
     }
 }

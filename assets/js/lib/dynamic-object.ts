@@ -9,7 +9,9 @@ export interface DynamicObjOpts {
     width: number;
     height: number;
     heightX: number
+    offsetHeightX: number;
     texture: Texture;
+    hpMax?: number;
     getTree: () => Quadtree;
 }
 
@@ -25,6 +27,10 @@ export class DynamicObj {
     sprite: Sprite;
     vy: number = 0;
     vx: number = 0;
+    hp: number;
+    hpMax: number = 10;
+    invincibilityTimer: number = 0;
+    invincible: boolean = false;
 
     pos: QuadtreeBox;
     sidePos: QuadtreeBox;
@@ -37,7 +43,7 @@ export class DynamicObj {
 
     constructor(o: DynamicObjOpts) {
         this.pos = DynamicObj.generateBounds(o.x, o.y, o.width, o.height);
-        this.sidePos = DynamicObj.generateBounds(o.x, o.y, o.width, o.heightX);
+        this.sidePos = DynamicObj.generateBounds(o.x, o.y + o.offsetHeightX, o.width, o.heightX);
         this.sprite = new Sprite(o.texture);
         this.sprite.width = o.width;
         this.sprite.height = o.height;
@@ -46,6 +52,8 @@ export class DynamicObj {
         this.sprite.zIndex = 2;
         this.getTree = o.getTree;
 
+        if(o.hpMax) this.hpMax = o.hpMax;
+        this.hp = this.hpMax;
         app.stage.addChild(this.sprite);
     }
 
@@ -179,10 +187,9 @@ export class DynamicObj {
         const collidedY: BaseObject[] | false = tree.find(this.pos, this);
         if(collidedY) {
             this.seperateY(collidedY[0], vDown, deltaTime);
-            this.sprite.tint = 0x00fffff;
+            //this.sprite.tint = 0x00fffff;
         } else {
-            this.sprite.tint = 0xffffff; 
-            console.log(this.pos.y)
+            //this.sprite.tint = 0xffffff; 
         }
 
     }
@@ -210,6 +217,23 @@ export class DynamicObj {
         this.updateX(this.vx);
         this.updateSpriteX(this.vx);
         this.vx = 0;
+
+        if(this.invincible) {
+            console.log(this.invincibilityTimer)
+            if(this.invincibilityTimer > 0) {
+                this.invincibilityTimer -= deltaTime;
+
+                if(Math.floor(this.invincibilityTimer) % 2 == 0) {
+                    this.sprite.tint = 0x00ffff;
+                } else {
+                    this.sprite.tint = 0xffffff;
+                }
+            } else {
+                this.invincible = false
+                this.invincibilityTimer = 0;
+                this.sprite.tint = 0xffffff;
+            }
+        }
     }
 
     jump(deltaTime: number) {
@@ -229,5 +253,12 @@ export class DynamicObj {
         this.currentGravity = this.gravity;
     }
 
+    activateInvincibility(t: number) {
+        this.invincible = true;
+        this.invincibilityTimer = t;
+    }
+
     kill() {}
+
+    hurt(dmg: number) {}
 }

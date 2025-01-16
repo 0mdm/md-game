@@ -1,0 +1,27 @@
+
+
+#ui > #stats {
+    display: flex;
+    flex-direction: row;
+    border: 2px outset black;
+    width: var(--sw);
+    height: 25px;
+    margin-left: 10px;
+    margin-top: 10px;
+    background-color: black;
+}
+
+#ui > #stats > #health-c {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    background-color: red;
+    width: var(--sw);
+    margin: auto;
+}
+
+#ui > #stats > #health-c #health {
+    color: white;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-size: 1em;
+}

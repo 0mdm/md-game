@@ -149,15 +149,8 @@ const blockTypes: {[index: string]: (x: number, y: number) => BlockMesh} = {
             width: 16,
             height: 16,
             sprite: s,
-            onTouch(e?: Player | DynamicObj) {
-                $("#menu-bar").appendChild($$("h1", {
-                    style: {
-                        color: `rgb(${rand255()}, ${rand255()}, ${rand255()})`,
-                    },
-                    text: "YOU DIED!"
-                }));
-
-                e?.kill();
+            onTouch(e?: DynamicObj) {
+                e?.hurt(2);
             },
         })
 

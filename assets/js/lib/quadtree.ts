@@ -33,7 +33,7 @@ interface BaseObjectOpts {
     width: number;
     height: number;
     sprite: Sprite;
-    onTouch?: (e?: Player | DynamicObj) => void;
+    onTouch?: (e?: DynamicObj) => void;
 }
 
 export class BaseObject {
@@ -45,7 +45,7 @@ export class BaseObject {
     maxY: number;
     sprite: Sprite;
     id: number;
-    onTouch?: (e?: Player | DynamicObj) => void;
+    onTouch?: (e?: DynamicObj) => void;
 
     constructor(o: BaseObjectOpts) {
         this.x = o.x;
@@ -144,7 +144,7 @@ export class Quadtree {
 
     once = false;
 
-    find(e: QuadtreeBox, a?: DynamicObj | Player): false | BaseObject[] {
+    find(e: QuadtreeBox, a?: DynamicObj): false | BaseObject[] {
         if(isColliding(this, e)) {
             if(this.isDivided) {
                 for(const node of this.nodes) {
