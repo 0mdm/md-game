@@ -114,7 +114,7 @@ export class Player {
 
     }
 
-    seperateY(o: BaseObject, vDown: number) {
+    seperateY(o: BaseObject, vDown: number, deltaTime: number) {
         if(this.pos.y < o.y) {
             // floor
             const fNormal = this.pos.maxY - o.y + vDown;
@@ -125,16 +125,10 @@ export class Player {
         } else {
             // ceiling
             const fNormal = this.pos.y - o.maxY + vDown;
-            this.moveUp(fNormal);
+            this.vertVelocity = -this.gravity;
+            this.moveUp(fNormal + this.vertVelocity * deltaTime);
             this.jumpTime = this.jumpTimeLimit;
-            this.vertVelocity = this.gravity;
             this.currentGravity = this.gravity;
-        }
-
-        if(this.pos.y > o.y) {
-            // hit head            this.vertVelocity = this.gravity;          this.currentGravity = this.gravity;*/
-        } else if(this.pos.y < o.y && this.vertVelocity < 0) {
-            // standing on ground or touching side
         }
     }
 
@@ -186,7 +180,7 @@ export class Player {
 
         if(this.gravityEnabled && (this.vertVelocity * deltaTime > this.vertVelocityLimit)) {
             this.vertVelocity -= this.currentGravity * deltaTime;
-            if(this.vertVelocity < this.vertVelocityLimit) this.vertVelocity = this.vertVelocityLimit * deltaTime;
+            if(this.vertVelocity < this.vertVelocityLimit) this.vertVelocity = this.vertVelocityLimit;
         }
 
         this.handleY(tree, deltaTime);
@@ -219,7 +213,7 @@ export class Player {
 
         const collidedY: BaseObject[] | false = tree.find(this.pos, this);
         if(collidedY) {
-            this.seperateY(collidedY[0], vDown);
+            this.seperateY(collidedY[0], vDown, deltaTime);
             //this.playerSprite.tint = 0x00fffff;
         } else {
             //this.playerSprite.tint = 0xffffff; 

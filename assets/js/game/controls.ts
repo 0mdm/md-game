@@ -37,12 +37,12 @@ export function enableControls() {
     controlsIsDisabled = false;
 }
 
-addEventListener("visibilitychange", e => {
-    if(document.hidden) {
-        isTabActive = false; 
-    } else {
-        isTabActive = true;
-    }
+addEventListener("blur", e => {
+    isTabActive = false; 
+});
+
+addEventListener("focus", e => {
+    isTabActive = true;
 });
 
 var tabFocusLost = false;
