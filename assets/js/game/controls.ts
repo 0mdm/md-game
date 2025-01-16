@@ -1,5 +1,11 @@
 import { $ } from "../lib/util";
+import { audio } from "../main/canvas";
 import { player } from "./start";
+import { Howl } from "howler";
+
+const jumpSfx = new Howl({
+    src: [audio["sfx/jump.mp3"]],
+});
 
 function up(el: HTMLButtonElement, f: () => void) {
     el.addEventListener("pointerup", f);
@@ -53,7 +59,6 @@ function loop() {
     if(tabFocusLost) {
         tabFocusLost = false;
         lastUpdate = current + 1;
-        console.log(0)
     }
 
     const rDelta = current - lastUpdate;
@@ -78,6 +83,8 @@ function loop() {
 
     requestAnimationFrame(loop);
 }
+
+player.onJumpStart = () => jumpSfx.play();
 
 addEventListener("visibilitychange", () => {
     if(document.visibilityState == "hidden") {

@@ -71,7 +71,34 @@ img {
     color: teal;
     background-color: white;
 }
+
 #ui > #menu-bar > button:active {
     border: 2px inset black;
     background-color: #eeeeee;
+}
+
+#ui > #play-c {
+    display: flex;
+    background-color: rgba(0.2, 0.2, 0.2, 0.5);
+    width: var(--w);
+    height: var(--h);
+    position: fixed;
+    pointer-events: none;
+}
+
+#ui > #play-c #play {
+    font-size: 3em;
+    color: black;
+    padding-top: 25px;
+    padding-bottom: 25px;
+    padding-left: 100px;
+    padding-right: 100px;
+    margin: auto;
+    border: 3px solid black;
+    border-radius: 50px;
+    pointer-events: auto;
+}
+
+#ui > #play-c #play:active {
+    filter: contrast(50%);
 }

@@ -17,8 +17,15 @@
 
 
 #ui > #controls #r {
+    display: flex;
+    flex-direction: column;
     margin-right: 0;
     margin-left: auto;
+}
+
+#ui > #controls #r #shoot {
+    margin-right: 100px;
+    filter: grayscale(1);
 }
 
 #ui > #controls button {
@@ -28,6 +35,10 @@
     background-color: transparent;
 }
 
+#ui > #controls button:active {
+    filter: saturate(2);
+}
+
 #ui > #controls img {
     width: 50px;
     height: 50px;
@@ -35,6 +46,7 @@
 
 #ui > #controls #down img {
     transform: rotate(270deg);
+    filter: grayscale(1);
 }
 
 #ui > #controls #right img {

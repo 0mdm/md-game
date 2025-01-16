@@ -64,6 +64,8 @@ export class Player {
 
     getTree: () => Quadtree;
 
+    onJumpStart: () => void = () => undefined;
+
     constructor(o: PlayerOpts) {
         this.playerSprite = new Sprite(o.texture);
         this.playerSprite.width = this.pos.width;
@@ -222,6 +224,8 @@ export class Player {
     }
 
     jump(deltaTime: number) {
+        if(this.jumpTime == 0) this.onJumpStart();
+
         if(this.jumpTime < this.jumpTimeLimit) {
             this.currentGravity = 0;
             this.jumpTime += deltaTime;
