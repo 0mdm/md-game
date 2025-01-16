@@ -28,14 +28,14 @@ export function setSpawn(x: number, y: number) {
 
 export class Player {
     worldContainer: Container;
-    jumpIntensity = 2.5;
+    jumpIntensity = 1.5;
     currentGravity = 0;
     gravity = 0.2; // pixels per frame
     gravityEnabled = true;
     jumpTime = 0;
     jumpTimeLimit = 20;
     vertVelocity = 0;
-    vertVelocityLimit = -10;
+    vertVelocityLimit = -5;
     vx: number = 0;
     vy: number = 0;
     playerSprite: Sprite;
@@ -114,24 +114,27 @@ export class Player {
 
     }
 
-    seperateY(o: BaseObject, vDown: number, deltaTime: number) {
+    seperateY(o: BaseObject, vDown: number) {
         if(this.pos.y < o.y) {
             // floor
-            this.moveUp(this.pos.maxY - o.y + vDown / deltaTime);
+            const fNormal = this.pos.maxY - o.y + vDown;
+            this.moveUp(fNormal);
+            this.jumpTime = 0;
+            this.vertVelocity = 0;
+            this.currentGravity = 0;
         } else {
             // ceiling
-            this.moveUp(this.pos.y - o.maxY + vDown);
-        }
-
-        if(this.pos.y > o.y && this.vertVelocity > 0) {
-            // hit head
+            const fNormal = this.pos.y - o.maxY + vDown;
+            this.moveUp(fNormal);
             this.jumpTime = this.jumpTimeLimit;
             this.vertVelocity = this.gravity;
             this.currentGravity = this.gravity;
+        }
+
+        if(this.pos.y > o.y) {
+            // hit head            this.vertVelocity = this.gravity;          this.currentGravity = this.gravity;*/
         } else if(this.pos.y < o.y && this.vertVelocity < 0) {
             // standing on ground or touching side
-            this.jumpTime = 0;
-            this.vertVelocity = 0;
         }
     }
 
@@ -181,9 +184,9 @@ export class Player {
             event(this);
         }
 
-        if(this.gravityEnabled && this.vertVelocity > this.vertVelocityLimit) {
+        if(this.gravityEnabled && (this.vertVelocity * deltaTime > this.vertVelocityLimit)) {
             this.vertVelocity -= this.currentGravity * deltaTime;
-            if(this.vertVelocity < this.vertVelocityLimit) this.vertVelocity = this.vertVelocityLimit;
+            if(this.vertVelocity < this.vertVelocityLimit) this.vertVelocity = this.vertVelocityLimit * deltaTime;
         }
 
         this.handleY(tree, deltaTime);
@@ -211,10 +214,15 @@ export class Player {
     handleY(tree: Quadtree, deltaTime: number) {
         const vDown = -this.vertVelocity * deltaTime;
         this.moveDown(vDown);
+        this.updateY(this.vy);
+        this.updateSpriteY(this.vy);
 
         const collidedY: BaseObject[] | false = tree.find(this.pos, this);
         if(collidedY) {
-            this.seperateY(collidedY[0], vDown, deltaTime);
+            this.seperateY(collidedY[0], vDown);
+            //this.playerSprite.tint = 0x00fffff;
+        } else {
+            //this.playerSprite.tint = 0xffffff; 
         }
 
     }
