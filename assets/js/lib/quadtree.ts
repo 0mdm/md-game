@@ -2,6 +2,7 @@ import {Container, Sprite, Texture} from "pixi.js";
 import { Player, QuadtreeBox } from "./objects";
 import { app } from "../main/app";
 import { sp } from "./util";
+import { DynamicObj } from "./dynamic-object";
 
 var idCounter: number = 0;
 var debugContainer: Container;
@@ -32,7 +33,7 @@ interface BaseObjectOpts {
     width: number;
     height: number;
     sprite: Sprite;
-    onTouch?: (e?: Player) => void;
+    onTouch?: (e?: Player | DynamicObj) => void;
 }
 
 export class BaseObject {
@@ -44,7 +45,7 @@ export class BaseObject {
     maxY: number;
     sprite: Sprite;
     id: number;
-    onTouch?: (e?: Player) => void;
+    onTouch?: (e?: Player | DynamicObj) => void;
 
     constructor(o: BaseObjectOpts) {
         this.x = o.x;
@@ -143,7 +144,7 @@ export class Quadtree {
 
     once = false;
 
-    find(e: QuadtreeBox, a?: Player): false | BaseObject[] {
+    find(e: QuadtreeBox, a?: DynamicObj | Player): false | BaseObject[] {
         if(isColliding(this, e)) {
             if(this.isDivided) {
                 for(const node of this.nodes) {

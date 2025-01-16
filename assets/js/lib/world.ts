@@ -5,6 +5,7 @@ import { Player, PlayerOpts, QuadtreeBox, setSpawn } from "./objects";
 import { app } from "../main/app";
 import { $, $$, rand255 } from "./util";
 import { textures } from "../main/canvas";
+import { DynamicObj } from "./dynamic-object";
 
 interface TreeMap {
     [index: string]: Quadtree;
@@ -148,7 +149,7 @@ const blockTypes: {[index: string]: (x: number, y: number) => BlockMesh} = {
             width: 16,
             height: 16,
             sprite: s,
-            onTouch(e?: Player) {
+            onTouch(e?: Player | DynamicObj) {
                 $("#menu-bar").appendChild($$("h1", {
                     style: {
                         color: `rgb(${rand255()}, ${rand255()}, ${rand255()})`,
