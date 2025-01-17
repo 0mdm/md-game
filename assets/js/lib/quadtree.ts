@@ -11,7 +11,7 @@ export function setQuadreeDebug(e: Container) {
     debugContainer = e;
 }
 
-function isColliding(q: Quadtree | QuadtreeBox| BaseObject, o: Quadtree | BaseObject | QuadtreeBox): boolean {
+export function isColliding(q: Quadtree | QuadtreeBox| BaseObject, o: Quadtree | BaseObject | QuadtreeBox): boolean {
     return q.x < o.maxX 
     && q.maxX > o.x 
     && q.y < o.maxY

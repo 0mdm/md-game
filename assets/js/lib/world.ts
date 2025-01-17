@@ -1,4 +1,4 @@
-import { Assets, Container, Sprite, Texture } from "pixi.js";
+import { Assets, Container, GlEncoderSystem, Sprite, Texture } from "pixi.js";
 import { Keymap } from "./keymap";
 import { BaseObject, Quadtree, setQuadreeDebug } from "./quadtree";
 import { Player, PlayerOpts, QuadtreeBox, setSpawn } from "./objects";
@@ -6,6 +6,7 @@ import { app } from "../main/app";
 import { $, $$, rand255 } from "./util";
 import { textures } from "../main/canvas";
 import { DynamicObj } from "./dynamic-object";
+import { Enemy } from "./enemy";
 
 interface TreeMap {
     [index: string]: Quadtree;
@@ -29,8 +30,12 @@ export class World {
     player: Player;
     cLevel: string; // current level
 
+    entities: Enemy[] = [];
+
     getTree(): Quadtree {
-        return this.trees[this.cLevel];
+        const t = this.trees[this.cLevel];
+        
+        return t;
     }
 
     constructor(o: WorldOpts) {
@@ -86,11 +91,17 @@ export class World {
         this.keymap.key("@", (x, y) => {
             setSpawn(x * 16, y * 16);
             this.player.tp(x * 16, y * 16);
+            console.log(this.player.pos)
+        });
+
+        this.keymap.key("E", (x, y) => {
+            self.addBlock(x, y, "enemy");
         });
     }
 
     addBlock(x: number, y: number, type: string) {
-        const [s, o] = blockTypes[type](x, y);
+        const [s, o] = blockTypes[type](x, y, this);
+        if(o instanceof DynamicObj) return;
 
         this.container.addChild(s);
         this.container.addChild(o.sprite);
@@ -115,11 +126,11 @@ function setBlock(s: Sprite, x: number, y: number) {
     s.position.set(x * 16, y * 16);
 }
 
-type BlockMesh = [Sprite, BaseObject];
+type BlockMesh = [Sprite, BaseObject | DynamicObj | Enemy];
 
 // const spikeT = await Assets.load("assets/sprites/blocks/spike.png");
 
-const blockTypes: {[index: string]: (x: number, y: number) => BlockMesh} = {
+const blockTypes: {[index: string]: (x: number, y: number, world?: World) => BlockMesh} = {
     basic(x: number, y: number): BlockMesh {
         const s = new Sprite(textures["blocks/block.png"]);
         setBlock(s, x, y);
@@ -155,5 +166,27 @@ const blockTypes: {[index: string]: (x: number, y: number) => BlockMesh} = {
         })
 
         return [s, o];
-    }
+    },
+    enemy(x: number, y: number, world?: World): BlockMesh {
+        const o = new Enemy({
+            texture: Texture.WHITE,
+            x: x * 16,
+            y: y * 16,
+            width: 16,
+            height: 16,
+            heightX: 6,
+            offsetHeightX: 2,
+            // wtf is this bug
+            getTree: () => world!.getTree(),
+            container: world!.container,
+        });
+
+        //o.tp(x * 16, y * 16);
+
+        o.sprite.tint = 0xff0000;
+
+        world?.entities.push(o);
+
+        return [o.sprite, o];
+    },
 };

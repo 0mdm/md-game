@@ -1,6 +1,6 @@
 import { $ } from "../lib/util";
 import { audio } from "../main/canvas";
-import { player } from "./start";
+import { player, world } from "./start";
 import { Howl } from "howler";
 
 const jumpSfx = new Howl({
@@ -53,7 +53,7 @@ addEventListener("focus", e => {
 
 var tabFocusLost = false;
 
-function loop() {
+export function loop() {
     const current = performance.now();
 
     if(tabFocusLost) {
@@ -81,8 +81,14 @@ function loop() {
     if(moving.right) player.moveRight(speed * deltaTime);
     player.tick(deltaTime);
 
+    for(const entity of world.entities) {
+        entity.tick(deltaTime);
+    }
+
     requestAnimationFrame(loop);
 }
+
+loop();
 
 player.onJumpStart = () => jumpSfx.play();
 
@@ -91,8 +97,6 @@ addEventListener("visibilitychange", () => {
         tabFocusLost = true;
     }
 });
-
-loop();
 
 //setInterval(loop, expectedFPS);
 

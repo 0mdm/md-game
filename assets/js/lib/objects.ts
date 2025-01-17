@@ -31,14 +31,14 @@ export function setSpawn(x: number, y: number) {
 
 const hpTxt = $("#ui > #stats > #health-c #health") as HTMLParagraphElement;
 const hpEl = $("#ui > #stats > #health-c") as HTMLElement;
-const hpElWidth: number = Number(getComputedStyle(document.documentElement).getPropertyValue("--sw"));
-
+const hpElWidth: number = Number(getComputedStyle(document.documentElement).getPropertyValue("--sw").slice(0, -2));
 
 export class Player extends DynamicObj {
     worldContainer: Container;
 
     constructor(o: PlayerOpts) {
         const opts: DynamicObjOpts = {
+            container: app.stage,
             x: halfWidth,
             y: halfHeight,
             width: 16,
@@ -69,7 +69,7 @@ export class Player extends DynamicObj {
         this.hp = this.hpMax;
         this.events.push(self => self.tp(spawnX, spawnY));
         hpTxt.textContent = `${this.hp}/${this.hpMax}`;
-        //updateHpBar(this.hpMax, this.hp);
+        updateHpBar(this.hpMax, this.hp);
     }
 
     override hurt(dmg: number) {
@@ -80,15 +80,12 @@ export class Player extends DynamicObj {
 
         if(this.hp <= 0) return this.kill();
 
-        //updateHpBar(this.hpMax, this.hp);
+        updateHpBar(this.hpMax, this.hp);
         this.activateInvincibility(50);
     }
 }
 
 function updateHpBar(hpMax: number, hp: number) {
-    if((hpMax - hp) == 0) {
-        hpEl.style.width = hpElWidth.toString();
-    } else {
-        hpEl.style.width = (Math.ceil(hpElWidth / (hpMax - hp))).toString();
-    }
+    const w = Math.ceil(hpElWidth / hpMax * hp).toString() + "px";
+    hpEl.style.width = w;
 }

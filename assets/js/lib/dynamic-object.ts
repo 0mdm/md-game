@@ -1,9 +1,10 @@
-import { Sprite, Texture } from "pixi.js";
+import { Container, Sprite, Texture } from "pixi.js";
 import { QuadtreeBox } from "./objects";
 import { BaseObject, Quadtree } from "./quadtree";
 import { app } from "../main/app";
 
 export interface DynamicObjOpts {
+    container: Container;
     x: number;
     y: number;
     width: number;
@@ -15,7 +16,13 @@ export interface DynamicObjOpts {
     getTree: () => Quadtree;
 }
 
+// ifc = invicincibility flicker counter
+
 export class DynamicObj {
+    isFlickered = false;
+    ifc: number;
+    ifcMax: number = 5;
+
     jumpIntensity = 1.5;
     currentGravity = 0;
     gravity = 0.2;
@@ -51,10 +58,11 @@ export class DynamicObj {
         this.sprite.position.set(this.pos.x, this.pos.y);
         this.sprite.zIndex = 2;
         this.getTree = o.getTree;
+        this.ifc = this.ifcMax;
+        o.container.addChild(this.sprite);
 
         if(o.hpMax) this.hpMax = o.hpMax;
         this.hp = this.hpMax;
-        app.stage.addChild(this.sprite);
     }
 
     static generateBounds(x: number, y: number, width: number, height: number): QuadtreeBox {
@@ -219,22 +227,33 @@ export class DynamicObj {
         this.vx = 0;
 
         if(this.invincible) {
-            console.log(this.invincibilityTimer)
             if(this.invincibilityTimer > 0) {
+                this.ifc -= deltaTime;
                 this.invincibilityTimer -= deltaTime;
 
-                if(Math.floor(this.invincibilityTimer) % 2 == 0) {
+                if(this.ifc <= 0) {
+                    this.isFlickered = !this.isFlickered;
+                    this.ifc = this.ifcMax;
+                }
+
+                if(this.isFlickered) {
                     this.sprite.tint = 0x00ffff;
                 } else {
                     this.sprite.tint = 0xffffff;
                 }
             } else {
+                this.isFlickered = false;
                 this.invincible = false
                 this.invincibilityTimer = 0;
                 this.sprite.tint = 0xffffff;
+                this.ifc = this.ifcMax;
             }
         }
+
+        this.extraTick(deltaTime);
     }
+
+    extraTick(deltaTime: number) {}
 
     jump(deltaTime: number) {
         if(this.jumpTime == 0) this.onJumpStart();

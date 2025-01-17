@@ -5,7 +5,7 @@
 }
 
 :root {
-    --sw: min(80vw, 300px);
+    --sw: 300px;
 }
 
 body {

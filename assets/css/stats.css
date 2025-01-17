@@ -17,7 +17,8 @@
     justify-content: center;
     background-color: red;
     width: var(--sw);
-    margin: auto;
+    margin-left: 0;
+    margin-right: auto;
 }
 
 #ui > #stats > #health-c #health {
