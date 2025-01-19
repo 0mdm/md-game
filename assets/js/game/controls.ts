@@ -77,8 +77,15 @@ export function loop() {
         player.jumpEnd();
     }
 
-    if(moving.left) player.moveLeft(speed * deltaTime);
-    if(moving.right) player.moveRight(speed * deltaTime);
+    if(moving.left) {
+        player.turnLeft();
+        player.moveLeft(speed * deltaTime);
+    }
+
+    if(moving.right) {
+        player.turnRight();
+        player.moveRight(speed * deltaTime);
+    }
     player.tick(deltaTime);
 
     for(const entity of world.entities) {

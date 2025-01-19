@@ -16,6 +16,8 @@ export interface QuadtreeBox {
 }*/
 
 export interface PlayerOpts extends Partial<DynamicObjOpts> {
+    height: number;
+    actualWidth: number;
     worldContainer: Container;
     texture: Texture;
     getTree: () => Quadtree;
@@ -43,8 +45,8 @@ export class Player extends DynamicObj {
             container: app.stage,
             x: halfWidth,
             y: halfHeight,
-            width: blockSize,
-            height: blockSize,
+            width: o.actualWidth,
+            height: o.height,
             heightX: blockSize / 2,
             texture: o.texture,
             getTree: o.getTree,
@@ -52,7 +54,10 @@ export class Player extends DynamicObj {
         };
 
         super(opts);
+
         this.worldContainer = o.worldContainer;
+        this.sprite.width = blockSize;
+        this.sprite.position.x -= 8;
     }
 
     override updateSpriteX(x: number): void {
@@ -85,6 +90,16 @@ export class Player extends DynamicObj {
 
         updateHpBar(this.hpMax, this.hp);
         this.activateInvincibility(50);
+    }
+
+    turnLeft() {
+        this.sprite.anchor.x = 1;
+        this.sprite.scale.x = -1;
+    }
+
+    turnRight() {
+        this.sprite.anchor.x = 0;
+        this.sprite.scale.x = 1;
     }
 }
 

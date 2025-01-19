@@ -48,10 +48,11 @@ export class World {
 
         this.player = new Player({
             worldContainer: this.container,
-            texture: o.player.texture || Texture.WHITE,
+            height: 40,
+            actualWidth: 24,
+            texture: textures["player/player.png"],
             getTree: () => this.trees[this.cLevel],
         });
-
 
         for(const i in levelMap) {
             this.trees[i] = new Quadtree(0, 0, this.size, this.size);
