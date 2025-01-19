@@ -29,6 +29,7 @@ export class World {
     keymap = new Keymap();
     player: Player;
     cLevel: string; // current level
+    size: number = 2048 * 2;
 
     entities: Enemy[] = [];
 
@@ -53,7 +54,7 @@ export class World {
 
 
         for(const i in levelMap) {
-            this.trees[i] = new Quadtree(0, 0, 2048 * 2, 2048 * 2);
+            this.trees[i] = new Quadtree(0, 0, this.size, this.size);
         }
 
         this.setKeymap();
@@ -114,15 +115,22 @@ export class World {
         this.addBlock(x, y, type);
         return true;
     }
-}
 
-function setBlock(s: Sprite, x: number, y: number) {
-    s.width = blockSize;
-    s.height = blockSize;
-    s.position.set(x * blockSize, y * blockSize);
-}
+    async convertLevelToString(): Promise<string> {
+        const tree = this.getTree();
+        
+        const final: string = await Keymap.buildString(this.size / blockSize, this.size / blockSize, (x: number, y: number) => {
+            x *= blockSize;
+            y *= blockSize;
 
-//type BlockMesh = [Sprite, BaseObject | DynamicObj | Enemy];
+            const found = tree.blockFind(BaseObject.generateBounds(x, y, blockSize, blockSize));
+
+            if(found) return found[0].character;
+        });
+
+        return final;
+    }
+}
 
 const blockTypes: {[index: string]: (x: number, y: number, world?: World) => BaseObject} = {
     basic(x: number, y: number): BaseObject {
@@ -131,6 +139,7 @@ const blockTypes: {[index: string]: (x: number, y: number, world?: World) => Bas
             y: y * blockSize,
             width: blockSize,
             height: blockSize,
+            character: "#",
             texture: textures["blocks/block.png"],
             onTouch() {
                 o.sprite.tint = 0xfff000;
@@ -144,6 +153,7 @@ const blockTypes: {[index: string]: (x: number, y: number, world?: World) => Bas
     },
     spike(x: number, y: number): BaseObject {
         const o = new BaseObject({
+            character: "$",
             x: x * blockSize,
             y: y * blockSize,
             width: blockSize,
@@ -160,6 +170,7 @@ const blockTypes: {[index: string]: (x: number, y: number, world?: World) => Bas
     },
     enemy(x: number, y: number, world?: World): BaseObject {
         const o = new Enemy({
+            character: "E",
             texture: textures["enemies/jumpy.png"],
             x: x * blockSize,
             y: y * blockSize,
@@ -167,6 +178,7 @@ const blockTypes: {[index: string]: (x: number, y: number, world?: World) => Bas
             height: blockSize,
             heightX: blockSize / 2,
             offsetHeightX: 4,
+
             // wtf is this bug
             getTree: () => world!.getTree(),
             container: world!.container,

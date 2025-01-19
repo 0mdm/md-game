@@ -39,6 +39,7 @@ export class Player extends DynamicObj {
 
     constructor(o: PlayerOpts) {
         const opts: DynamicObjOpts = {
+            character: "@",
             container: app.stage,
             x: halfWidth,
             y: halfHeight,

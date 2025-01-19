@@ -18,10 +18,12 @@ export interface BaseObjectOpts {
     width: number;
     height: number;
     texture: Texture;
+    character: string;
     onTouch?: (e: BaseObject) => void;
 }
 
 export class BaseObject {
+    character: string;
     pos: BoxBound;
     sprite: Sprite;
     id: number;
@@ -29,6 +31,7 @@ export class BaseObject {
     onTouch: (o: BaseObject) => void = () => undefined;
 
     constructor(o: BaseObjectOpts) {
+        this.character = o.character;
         this.pos = BaseObject.generateBounds(o.x, o.y, o.width, o.height);
         this.sprite = new Sprite(o.texture);
         this.id = idCounter++;

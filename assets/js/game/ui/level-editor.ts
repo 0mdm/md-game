@@ -77,6 +77,14 @@ function placeBlock(dx: number, dy: number, px: number, py: number) {
 }
 
 const getText = $("#ui > #level-editor #get-text") as HTMLButtonElement;
-getText.addEventListener("pointerup", () => {
-
+getText.addEventListener("pointerup", async e => {
+    const st: string = await world.convertLevelToString();
+    try {
+        await navigator.clipboard.writeText(st);
+        console.log(st);
+        alert("Copied to clipboard");
+    } catch(err) {
+        alert("Couldn't copy to clipboard");
+        console.error(err);
+    }
 });

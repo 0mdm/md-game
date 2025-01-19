@@ -145,8 +145,6 @@ export class Quadtree {
     once = false;
 
     blockFind(e: BoxBound): false | BaseObject[] {
-        const test = this.width == 64 && this.x == 1984 && this.y == 768;
-
         if(isColliding(this, e)) {
             if(this.isDivided) {
                 for(const node of this.nodes) {
