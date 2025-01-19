@@ -1,7 +1,7 @@
 import { Container, measureHtmlText, ObservablePoint, Sprite, squaredDistanceToLineSegment, Texture, v8_0_0 } from "pixi.js";
 import { halfHeight, halfWidth } from "../main/canvas";
 import { app } from "../main/app";
-import { BaseObject, Quadtree } from "./quadtree";
+import { BaseObject, blockSize, Quadtree } from "./quadtree";
 import { DynamicObj, DynamicObjOpts } from "./dynamic-object";
 import { $ } from "./util";
 
@@ -41,12 +41,12 @@ export class Player extends DynamicObj {
             container: app.stage,
             x: halfWidth,
             y: halfHeight,
-            width: 16,
-            height: 16,
-            heightX: 6,
+            width: blockSize,
+            height: blockSize,
+            heightX: blockSize / 2,
             texture: o.texture,
             getTree: o.getTree,
-            offsetHeightX: 2,
+            offsetHeightX: 4,
         };
 
         super(opts);
@@ -62,6 +62,7 @@ export class Player extends DynamicObj {
     }
 
     override kill() {
+        this.jumpEnd();
         this.respawn();
     }
 

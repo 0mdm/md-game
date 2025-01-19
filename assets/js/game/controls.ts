@@ -20,7 +20,7 @@ const leftB = $("#ui > #controls #left") as HTMLButtonElement;
 const downB = $("#ui > #controls #down") as HTMLButtonElement;
 const rightB = $("#ui > #controls #right") as HTMLButtonElement;
 
-const speed = 4;
+const speed = 5;
 
 const moving = {
     up: false,

@@ -1,6 +1,6 @@
 import { Assets, Container, GlEncoderSystem, Sprite, Texture } from "pixi.js";
 import { Keymap } from "./keymap";
-import { BaseObject, Quadtree, setQuadreeDebug } from "./quadtree";
+import { BaseObject, blockSize, Quadtree, setQuadreeDebug } from "./quadtree";
 import { Player, PlayerOpts, QuadtreeBox, setSpawn } from "./objects";
 import { app } from "../main/app";
 import { $, $$, rand255 } from "./util";
@@ -53,7 +53,7 @@ export class World {
 
 
         for(const i in levelMap) {
-            this.trees[i] = new Quadtree(0, 0, 2048, 2048);
+            this.trees[i] = new Quadtree(0, 0, 2048 * 2, 2048 * 2);
         }
 
         this.setKeymap();
@@ -89,9 +89,8 @@ export class World {
         });
 
         this.keymap.key("@", (x, y) => {
-            setSpawn(x * 16, y * 16);
-            this.player.tp(x * 16, y * 16);
-            console.log(this.player.pos)
+            setSpawn(x * blockSize, y * blockSize);
+            this.player.tp(x * blockSize, y * blockSize);
         });
 
         this.keymap.key("E", (x, y) => {
@@ -108,22 +107,20 @@ export class World {
         this.keymapInsert(o, s);
     }
 
-    addBlockIfEmpty(x: number, y: number, t: Texture) {
-        const o: QuadtreeBox = {
-            x: x,
-            y: y,
-            width: 16,
-            height: 16,
-            maxX: x + 16,
-            maxY: y + 16,
-        };
+    addBlockIfEmpty(x: number, y: number, type: string): boolean {
+        const bounds: QuadtreeBox = DynamicObj.generateBounds(x * blockSize, y * blockSize, blockSize, blockSize);
+        const found = this.getTree().blockFind(bounds);
+        if(found) return false;
 
+        this.addBlock(x, y, type);
+        return true;
     }
 }
 
 function setBlock(s: Sprite, x: number, y: number) {
-    s.scale.set(0.5);
-    s.position.set(x * 16, y * 16);
+    s.width = blockSize;
+    s.height = blockSize;
+    s.position.set(x * blockSize, y * blockSize);
 }
 
 type BlockMesh = [Sprite, BaseObject | DynamicObj | Enemy];
@@ -139,8 +136,8 @@ const blockTypes: {[index: string]: (x: number, y: number, world?: World) => Blo
         const o = new BaseObject({
             x: s.x,
             y: s.y,
-            width: 16,
-            height: 16,
+            width: blockSize,
+            height: blockSize,
             sprite: s,
             onTouch() {
                 s.tint = 0xfff000;
@@ -157,8 +154,8 @@ const blockTypes: {[index: string]: (x: number, y: number, world?: World) => Blo
         const o = new BaseObject({
             x: s.x,
             y: s.y,
-            width: 16,
-            height: 16,
+            width: blockSize,
+            height: blockSize,
             sprite: s,
             onTouch(e?: DynamicObj) {
                 e?.hurt(2);
@@ -169,21 +166,17 @@ const blockTypes: {[index: string]: (x: number, y: number, world?: World) => Blo
     },
     enemy(x: number, y: number, world?: World): BlockMesh {
         const o = new Enemy({
-            texture: Texture.WHITE,
-            x: x * 16,
-            y: y * 16,
-            width: 16,
-            height: 16,
-            heightX: 6,
-            offsetHeightX: 2,
+            texture: textures["enemies/jumpy.png"],
+            x: x * blockSize,
+            y: y * blockSize,
+            width: blockSize,
+            height: blockSize,
+            heightX: blockSize / 2,
+            offsetHeightX: 4,
             // wtf is this bug
             getTree: () => world!.getTree(),
             container: world!.container,
         });
-
-        //o.tp(x * 16, y * 16);
-
-        o.sprite.tint = 0xff0000;
 
         world?.entities.push(o);
 

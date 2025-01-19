@@ -23,7 +23,7 @@ export class DynamicObj {
     ifc: number;
     ifcMax: number = 5;
 
-    jumpIntensity = 1.5;
+    jumpIntensity = 2.5;
     currentGravity = 0;
     gravity = 0.2;
     gravityEnabled = true;
@@ -71,7 +71,7 @@ export class DynamicObj {
             y,
             width,
             height,
-            maxX: x - width,
+            maxX: x + width,
             maxY: y + height,
         };
     }

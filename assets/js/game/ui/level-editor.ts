@@ -4,6 +4,7 @@ import { $ } from "../../lib/util";
 import { disableControls, enableControls } from "../controls";
 import { player, world } from "../start";
 import { createBackBtn, menuBar } from "./menu";
+import { blockSize } from "../../lib/quadtree";
 
 const pan = new PanController({
     touchEl: document.documentElement,
@@ -69,7 +70,13 @@ basicBlock.onpointerup = function() {
 function placeBlock(dx: number, dy: number, px: number, py: number) {
     const worldX = px - world.container.position.x;
     const worldY = py - world.container.position.y;
-    const x = Math.floor(worldX / 16);
-    const y = Math.floor(worldY / 16);
-    world.addBlock(x, y, "basic");
+    const x = Math.floor(worldX / blockSize);
+    const y = Math.floor(worldY / blockSize);
+
+    world.addBlockIfEmpty(x, y, "basic");
 }
+
+const getText = $("#ui > #level-editor #get-text") as HTMLButtonElement;
+getText.addEventListener("pointerup", () => {
+
+});

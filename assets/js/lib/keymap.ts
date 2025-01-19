@@ -1,3 +1,4 @@
+import { blockSize } from "./quadtree";
 
 export class Keymap {
     keys: {[index: string]: (x: number, y: number) => void} = {};
@@ -5,7 +6,7 @@ export class Keymap {
     static scan(txt: string) {
         const txtArr: string[] = txt.split("\n");
         const yMax = txtArr.length;
-        const height = yMax * 16;
+        const height = yMax * blockSize;
         
     }
 

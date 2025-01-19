@@ -1,4 +1,4 @@
-import {Container, Sprite, Texture} from "pixi.js";
+import {Container, QuadGeometry, Sprite, Texture} from "pixi.js";
 import { Player, QuadtreeBox } from "./objects";
 import { app } from "../main/app";
 import { sp } from "./util";
@@ -18,13 +18,20 @@ export function isColliding(q: Quadtree | QuadtreeBox| BaseObject, o: Quadtree |
     && q.maxY > o.y;
 }
 
+export function isCollidingBlock(q: Quadtree, o: QuadtreeBox): boolean {
+    return q.x <= o.maxX 
+    && q.maxX >= o.x 
+    && q.y <= o.maxY
+    && q.maxY >= o.y;
+}
+
 function isDevColliding(q: Quadtree, o: BaseObject | QuadtreeBox) {
     const a = q.x < o.maxX;
     const b = q.maxX > o.x;
     const c = q.y < o.maxY
     const d = q.maxY > o.y;
 
-    console.log("qy: " + q.y, "\no maxY: " + o.maxY, q.y < o.maxY);
+    console.log(a, b, c, d);
 }
 
 interface BaseObjectOpts {
@@ -66,6 +73,8 @@ export class StaticObject extends BaseObject {
     }
 }
 
+export const blockSize = 16 * 2;
+
 export class Quadtree {
     nodes: Quadtree[] = [];
     children: BaseObject[] = [];
@@ -78,7 +87,7 @@ export class Quadtree {
     halfH: number;
     maxX: number;
     maxY: number;
-    minSize: number = 16;
+    minSize: number = blockSize;
 
     constructor(x: number, y: number, width: number, height: number) {
         this.x = x;
@@ -92,7 +101,7 @@ export class Quadtree {
 
         if(this.width % 2 != 0) throw new Error("quadtree.ts: can't divided by 2: " + this.width % 2);
 
-        const size = 2048 / 32;
+        const size = (2048 * 2) / (blockSize * 2);
         if(this.width == size) {
             const s = new Sprite(Texture.WHITE);
             s.tint = Math.random() * 0xffffff;
@@ -144,6 +153,27 @@ export class Quadtree {
 
     once = false;
 
+    blockFind(e: QuadtreeBox): false | BaseObject[] {
+        //if(this.width == 64) console.log(1, this.x, this.maxX);
+        const test = this.width == 64 && this.x == 1984 && this.y == 768;
+
+        if(isColliding(this, e)) {
+            if(this.isDivided) {
+                for(const node of this.nodes) {
+                    const result = node.blockFind(e);
+                    //if(test) console.log("quadtree: ", result);
+                    if(result) return result;
+                }
+            } else {
+                if(this.children.length == 0) return false;
+
+                return this.children;
+            }
+        }
+
+        return false;
+    }
+
     find(e: QuadtreeBox, a?: DynamicObj): false | BaseObject[] {
         if(isColliding(this, e)) {
             if(this.isDivided) {
@@ -151,32 +181,7 @@ export class Quadtree {
                     const result = node.find(e, a);
                     if(result) return result;
                 }
-
-                /*if(e.width > this.width) {
-                    const collisions = [];
-                    for(const node of this.nodes) {
-                        for(const box of node.children) {
-                            if(isColliding(e, box)) collisions.push(box);
-                        }
-                    }
-
-                    console.log(collisions)
-
-                    if(collisions.length == 0) return false;
-                    return collisions;
-                }*/
             } else {
-                /*if(this.children.length == 0) {
-                    const collisions: BaseObject[] = [];
-                    for(const node of this.nodes) {
-                        for(const box of node.children) {
-                            if(isColliding(e, box)) collisions.push(box);
-                        }
-                    }
-
-                    if(collisions.length == 0) return false;
-                    return collisions;
-                }*/
                 if(this.children.length == 0) return false;
 
                 for(const boxes of this.children)
