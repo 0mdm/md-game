@@ -1,10 +1,11 @@
 import { Container, measureHtmlText, ObservablePoint, Sprite, squaredDistanceToLineSegment, Texture, v8_0_0 } from "pixi.js";
 import { halfHeight, halfWidth } from "../main/canvas";
 import { app } from "../main/app";
-import { BaseObject, blockSize, Quadtree } from "./quadtree";
+import { blockSize, Quadtree } from "./quadtree";
 import { DynamicObj, DynamicObjOpts } from "./dynamic-object";
 import { $ } from "./util";
 
+/*
 export interface QuadtreeBox {
     x: number;
     y: number;
@@ -12,7 +13,7 @@ export interface QuadtreeBox {
     height: number;
     maxX: number;
     maxY: number;
-}
+}*/
 
 export interface PlayerOpts extends Partial<DynamicObjOpts> {
     worldContainer: Container;

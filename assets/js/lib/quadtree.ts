@@ -1,8 +1,5 @@
 import {Container, QuadGeometry, Sprite, Texture} from "pixi.js";
-import { Player, QuadtreeBox } from "./objects";
-import { app } from "../main/app";
-import { sp } from "./util";
-import { DynamicObj } from "./dynamic-object";
+import { BaseObject, BoxBound } from "./base-object";
 
 var idCounter: number = 0;
 var debugContainer: Container;
@@ -11,21 +8,21 @@ export function setQuadreeDebug(e: Container) {
     debugContainer = e;
 }
 
-export function isColliding(q: Quadtree | QuadtreeBox| BaseObject, o: Quadtree | BaseObject | QuadtreeBox): boolean {
+export function isColliding(q: Quadtree | BoxBound, o: Quadtree | BoxBound): boolean {
     return q.x < o.maxX 
     && q.maxX > o.x 
     && q.y < o.maxY
     && q.maxY > o.y;
 }
 
-export function isCollidingBlock(q: Quadtree, o: QuadtreeBox): boolean {
+export function isCollidingBlock(q: Quadtree, o: BoxBound): boolean {
     return q.x <= o.maxX 
     && q.maxX >= o.x 
     && q.y <= o.maxY
     && q.maxY >= o.y;
 }
 
-function isDevColliding(q: Quadtree, o: BaseObject | QuadtreeBox) {
+function isDevColliding(q: Quadtree, o: BoxBound) {
     const a = q.x < o.maxX;
     const b = q.maxX > o.x;
     const c = q.y < o.maxY
@@ -34,6 +31,7 @@ function isDevColliding(q: Quadtree, o: BaseObject | QuadtreeBox) {
     console.log(a, b, c, d);
 }
 
+/*
 interface BaseObjectOpts {
     x: number;
     y: number;
@@ -65,13 +63,7 @@ export class BaseObject {
         this.id = idCounter++;
         this.onTouch = o.onTouch;
     }
-}
-
-export class StaticObject extends BaseObject {
-    constructor(o: BaseObjectOpts) {
-        super(o);
-    }
-}
+}*/
 
 export const blockSize = 16 * 2;
 
@@ -106,7 +98,6 @@ export class Quadtree {
             const s = new Sprite(Texture.WHITE);
             s.tint = Math.random() * 0xffffff;
             s.anchor.set(0, 0);
-            // innerWidth: 874
             s.position.set(this.x, this.y);
             s.width = this.width;
             s.height = this.height;
@@ -130,10 +121,10 @@ export class Quadtree {
     }
 
     insert(obj: BaseObject): boolean {
-        if(obj.width > this.width
-        || obj.height > this.height) return false;
+        if(obj.pos.width > this.width
+        || obj.pos.height > this.height) return false;
 
-        if(isColliding(this, obj)) {
+        if(isColliding(this, obj.pos)) {
             if(this.isDivided) {
                 // parent
                 for(const node of this.nodes)
@@ -153,15 +144,13 @@ export class Quadtree {
 
     once = false;
 
-    blockFind(e: QuadtreeBox): false | BaseObject[] {
-        //if(this.width == 64) console.log(1, this.x, this.maxX);
+    blockFind(e: BoxBound): false | BaseObject[] {
         const test = this.width == 64 && this.x == 1984 && this.y == 768;
 
         if(isColliding(this, e)) {
             if(this.isDivided) {
                 for(const node of this.nodes) {
                     const result = node.blockFind(e);
-                    //if(test) console.log("quadtree: ", result);
                     if(result) return result;
                 }
             } else {
@@ -174,7 +163,7 @@ export class Quadtree {
         return false;
     }
 
-    find(e: QuadtreeBox, a?: DynamicObj): false | BaseObject[] {
+    find(e: BoxBound, a: BaseObject): false | BaseObject[] {
         if(isColliding(this, e)) {
             if(this.isDivided) {
                 for(const node of this.nodes) {

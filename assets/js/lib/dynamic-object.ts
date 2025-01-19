@@ -1,9 +1,8 @@
 import { Container, Sprite, Texture } from "pixi.js";
-import { QuadtreeBox } from "./objects";
-import { BaseObject, Quadtree } from "./quadtree";
-import { app } from "../main/app";
+import { Quadtree } from "./quadtree";
+import { BaseObject, BaseObjectOpts, BoxBound } from "./base-object";
 
-export interface DynamicObjOpts {
+export interface DynamicObjOpts extends BaseObjectOpts {
     container: Container;
     x: number;
     y: number;
@@ -18,7 +17,7 @@ export interface DynamicObjOpts {
 
 // ifc = invicincibility flicker counter
 
-export class DynamicObj {
+export class DynamicObj extends BaseObject {
     isFlickered = false;
     ifc: number;
     ifcMax: number = 5;
@@ -31,7 +30,6 @@ export class DynamicObj {
     jumpTimeLimit = 20;
     fg = 0;
     fgmax = -5;
-    sprite: Sprite;
     vy: number = 0;
     vx: number = 0;
     hp: number;
@@ -39,8 +37,7 @@ export class DynamicObj {
     invincibilityTimer: number = 0;
     invincible: boolean = false;
 
-    pos: QuadtreeBox;
-    sidePos: QuadtreeBox;
+    sidePos: BoxBound;
 
     getTree: () => Quadtree;
 
@@ -49,6 +46,7 @@ export class DynamicObj {
     onJumpStart: () => void = () => undefined;
 
     constructor(o: DynamicObjOpts) {
+        super(o);
         this.pos = DynamicObj.generateBounds(o.x, o.y, o.width, o.height);
         this.sidePos = DynamicObj.generateBounds(o.x, o.y + o.offsetHeightX, o.width, o.heightX);
         this.sprite = new Sprite(o.texture);
@@ -63,17 +61,6 @@ export class DynamicObj {
 
         if(o.hpMax) this.hpMax = o.hpMax;
         this.hp = this.hpMax;
-    }
-
-    static generateBounds(x: number, y: number, width: number, height: number): QuadtreeBox {
-        return {
-            x,
-            y,
-            width,
-            height,
-            maxX: x + width,
-            maxY: y + height,
-        };
     }
 
     disable() {
@@ -114,14 +101,14 @@ export class DynamicObj {
     }
 
     seperateX(o: BaseObject) {
-        if(this.pos.x < o.x) {
+        if(this.pos.x < o.pos.x) {
             // right
-            const vx = o.x - this.pos.maxX;
+            const vx = o.pos.x - this.pos.maxX;
 
             this.moveRight(vx);
         } else {
             // left
-            const vx = o.maxX - this.pos.x;
+            const vx = o.pos.maxX - this.pos.x;
 
             this.moveRight(vx);
         }
@@ -129,16 +116,16 @@ export class DynamicObj {
     }
     
     seperateY(o: BaseObject, vDown: number, deltaTime: number) {
-        if(this.pos.y < o.y) {
+        if(this.pos.y < o.pos.y) {
             // floor
-            const fNormal = this.pos.maxY - o.y + vDown;
+            const fNormal = this.pos.maxY - o.pos.y + vDown;
             this.moveUp(fNormal);
             this.jumpTime = 0;
             this.fg = 0;
             this.currentGravity = 0;
         } else {
             // ceiling
-            const fNormal = this.pos.y - o.maxY + vDown;
+            const fNormal = this.pos.y - o.pos.maxY + vDown;
             this.fg = -this.gravity;
             this.moveUp(fNormal + this.fg * deltaTime);
             this.jumpTime = this.jumpTimeLimit;
@@ -277,7 +264,4 @@ export class DynamicObj {
         this.invincibilityTimer = t;
     }
 
-    kill() {}
-
-    hurt(dmg: number) {}
 }
