@@ -47,16 +47,16 @@ export class Player extends DynamicObj {
             y: halfHeight,
             width: o.actualWidth,
             height: o.height,
-            heightX: blockSize / 2,
+            heightX: o.height - 4,
             texture: o.texture,
             getTree: o.getTree,
-            offsetHeightX: 4,
+            offsetHeightX: 3,
         };
 
         super(opts);
 
         this.worldContainer = o.worldContainer;
-        this.sprite.width = blockSize;
+        this.sprite.width = 32;
         this.sprite.position.x -= 12;
     }
 

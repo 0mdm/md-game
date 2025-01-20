@@ -65,7 +65,7 @@ export class BaseObject {
     }
 }*/
 
-export const blockSize = 16 * 2;
+export const blockSize = 32 * 2;
 
 export class Quadtree {
     nodes: Quadtree[] = [];
@@ -93,10 +93,11 @@ export class Quadtree {
 
         if(this.width % 2 != 0) throw new Error("quadtree.ts: can't divided by 2: " + this.width % 2);
 
-        const size = (2048 * 2) / (blockSize * 2);
+        const size = (2048 * 2) / (blockSize);
         if(this.width == size) {
             const s = new Sprite(Texture.WHITE);
-            s.tint = Math.random() * 0xffffff;
+            //s.tint = Math.random() * 0xffffff;
+            s.tint = Math.floor(Math.random() * 0x0000f0);
             s.anchor.set(0, 0);
             s.position.set(this.x, this.y);
             s.width = this.width;

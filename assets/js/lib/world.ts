@@ -71,7 +71,7 @@ export class World {
 
         this.keymap.run(level);
     }
-
+    
     keymapInsert(o: BaseObject) {
         const t = this.trees[this.cLevel];
         if(!(this.trees[this.cLevel].insert(o))) throw new Error(

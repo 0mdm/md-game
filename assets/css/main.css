@@ -106,3 +106,8 @@ img {
 #ui > #play-c #play:active {
     filter: contrast(50%);
 }
+
+#ui > #pan-area {
+    width: var(--w);
+    height: calc(var(--h) - 220px);
+}

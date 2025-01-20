@@ -3,6 +3,7 @@
     pointer-events: none;
     background-color: rgba(10, 10, 10, 0.8);
     padding: 10px;
+    height: 220px;
 }
 
 #ui > #level-editor button {
@@ -35,8 +36,13 @@
 #ui > #level-editor > #blocks button {
     border: 2px solid black;
     border-radius: 50px / 10px;
-    width: 64px;
-    height: 64px;
+    /*width: 32px;
+    height: 32px;*/
+}
+
+#ui > #level-editor > #blocks button > img {
+    width: 32px;
+    height: 32px;
 }
 
 #ui > #level-editor > #blocks button.block-selected {
@@ -54,3 +60,5 @@
 #ui > #level-editor .deg-90 img {transform: rotate(90deg)}
 #ui > #level-editor .deg-180 img {transform: rotate(180deg)}
 #ui > #level-editor .deg-270 img {transform: rotate(270deg)}
+
+#ui > #level-editor > #util #right img {transform: scale(-1, 1)}

@@ -10,7 +10,7 @@ import { BaseObject } from "../../lib/base-object";
 import { spritesheetAsset } from "pixi.js";
 
 const pan = new PanController({
-    touchEl: $("#ui") as HTMLDivElement,
+    touchEl: $("#ui > #pan-area") as HTMLDivElement,
     enabled: false
 });
 
@@ -127,7 +127,7 @@ var rotation = 0;
 left.onpointerup = function() {
     lastRotation = rotation;
     rotation -= 90;
-    if(rotation < 0) rotation = 360;
+    if(rotation < 0) rotation = 270;
     setRotation();
 };
 
@@ -143,3 +143,11 @@ function setRotation() {
     blocks.classList.add("deg-" + rotation.toString());
     console.log(blocks.classList)
 }
+
+/*
+const importLevel = $("#import-level") as HTMLElement;
+importLevel.onpointerup = function() {
+    const text = prompt("Enter level text");
+    if(!text) return;
+
+};*/

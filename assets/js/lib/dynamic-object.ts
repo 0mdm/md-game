@@ -22,14 +22,14 @@ export class DynamicObj extends BaseObject {
     ifc: number;
     ifcMax: number = 5;
 
-    jumpIntensity = 2.5;
+    jumpIntensity = 4;
     currentGravity = 0;
     gravity = 0.2;
     gravityEnabled = true;
     jumpTime = 0;
-    jumpTimeLimit = 20;
+    jumpTimeLimit = 25;
     fg = 0;
-    fgmax = -5;
+    fgmax = -6;
     vy: number = 0;
     vx: number = 0;
     hp: number;
@@ -49,6 +49,7 @@ export class DynamicObj extends BaseObject {
         super(o);
         this.pos = DynamicObj.generateBounds(o.x, o.y, o.width, o.height);
         this.sidePos = DynamicObj.generateBounds(o.x, o.y + o.offsetHeightX, o.width, o.heightX);
+        //this.sidePos = DynamicObj.generateBounds(o.x, o.y, o.width, o.height );
         this.sprite = new Sprite(o.texture);
         this.sprite.width = o.width;
         this.sprite.height = o.height;
@@ -174,13 +175,16 @@ export class DynamicObj extends BaseObject {
     }
 
     detectCollisionY(tree: Quadtree, deltaTime: number) {
-        const vDown = -this.fg * deltaTime;
-        this.moveDown(vDown);
-        this.updateY(this.vy);
-        this.updateSpriteY(this.vy);
+        var vDown = this.vy - this.fg * deltaTime;
+        //this.moveDown(vDown);
+        //this.updateY(this.vy);
+        //this.updateSpriteY(this.vy);
+        this.updateY(vDown);
+        this.updateSpriteY(vDown);
 
         const collidedY: BaseObject[] | false = tree.find(this.pos, this);
         if(collidedY) {
+            vDown += this.fg * deltaTime;
             this.seperateY(collidedY[0], vDown, deltaTime);
             //this.sprite.tint = 0x00fffff;
         } else {
