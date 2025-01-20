@@ -6,6 +6,8 @@ import { createBackBtn, menuBar } from "./menu";
 import { blockSize } from "../../lib/quadtree";
 import { ElList } from "../../lib/ui";
 import { images } from "../../main/canvas";
+import { BaseObject } from "../../lib/base-object";
+import { spritesheetAsset } from "pixi.js";
 
 const pan = new PanController({
     touchEl: $("#ui") as HTMLDivElement,
@@ -48,33 +50,7 @@ function disableLevelEditor() {
     pan.disable();
     pan.setGrabCursor("grab", "grabbing");
     elList.exit();
-    //basicBlock.style.color = "black";
-    //basicBlockChosen = false;
 }
-
-/*
-var basicBlockChosen = false;
-const basicBlock = $("#ui > #level-editor #basic-block") as HTMLButtonElement;
-basicBlock.onpointerup = function() {
-    basicBlockChosen = !basicBlockChosen;
-
-    if(basicBlockChosen) {
-        pan.setGrabCursor("crosshair", "crosshair");
-        pan.onPan = placeBlock;
-        basicBlock.classList.add("block-selected");
-    } else {
-        pan.setGrabCursor("grab", "grabbing");
-        pan.onPan = onPan;
-        basicBlock.classList.remove("block-selected");
-    }
-}
-
-const deleteBlock = $("#ui > #level-editor #delete") as HTMLButtonElement;
-deleteBlock.onpointerup = function() {
-    basicBlockChosen = false;
-
-};
-*/
 
 function getBlockPos(px: number, py: number): [number, number] {
     const worldX = px - world.container.position.x;
@@ -92,10 +68,11 @@ function removeBlock(px: number, py: number) {
     world.removeBlock(x, y);
 }
 
-function placeBlock(name: string, px: number, py: number) {
+function placeBlock(name: string, px: number, py: number): BaseObject | false {
     const [x, y] = getBlockPos(px, py);
 
-    world.addBlockIfEmpty(x, y, name);
+    const block = world.addBlockIfEmpty(x, y, name);
+    return block;
 }
 
 const getText = $("#ui > #level-editor #get-text") as HTMLButtonElement;
@@ -110,7 +87,9 @@ getText.addEventListener("pointerup", async e => {
     }
 });
 
-const blocks = $("#ui > #level-editor #blocks") as HTMLDivElement;
+var t = 0;
+
+const blocks = $("#ui > #level-editor > #blocks") as HTMLDivElement;
 const elList = new ElList(blocks, [
     ElList.generate("delete", images["misc/trash.png"]),
     ElList.generate("basic", images["blocks/block.png"]),
@@ -125,7 +104,12 @@ const elList = new ElList(blocks, [
         }
     } else {
         pan.onPan = function(dx: number, dy: number, px: number, py: number) {
-            placeBlock(name, px, py);
+            const obj: BaseObject | false = placeBlock(name, px, py);
+            if(!obj) return;
+
+            if(rotation == 0) return;
+            const s = obj.sprite;
+            s.rotation = rotation * (Math.PI / 180);
         };
     }
 }, (el: HTMLElement) => {
@@ -134,3 +118,28 @@ const elList = new ElList(blocks, [
     pan.setGrabCursor("grab", "grabbing");
     pan.onPan = onPan;
 });
+
+const left = $("#ui > #level-editor > #util #left") as HTMLButtonElement;
+const right = $("#ui > #level-editor > #util #right") as HTMLButtonElement;
+var lastRotation = 0;
+var rotation = 0;
+
+left.onpointerup = function() {
+    lastRotation = rotation;
+    rotation -= 90;
+    if(rotation < 0) rotation = 360;
+    setRotation();
+};
+
+right.onpointerup = function() {
+    lastRotation = rotation;
+    rotation += 90;
+    if(rotation >= 360) rotation = 0;
+    setRotation();
+};
+
+function setRotation() {
+    blocks.classList.remove("deg-" + lastRotation.toString());
+    blocks.classList.add("deg-" + rotation.toString());
+    console.log(blocks.classList)
+}

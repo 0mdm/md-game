@@ -100,21 +100,21 @@ export class World {
         });
     }
 
-    addBlock(x: number, y: number, type: string) {
+    addBlock(x: number, y: number, type: string): BaseObject {
         const o = blockTypes[type](x, y, this);
-        if(o instanceof DynamicObj) return;
+        if(o instanceof DynamicObj) return o;
 
         this.container.addChild(o.sprite);
         this.keymapInsert(o);
+        return o;
     }
 
-    addBlockIfEmpty(x: number, y: number, type: string): boolean {
+    addBlockIfEmpty(x: number, y: number, type: string): BaseObject | false {
         const bounds: BoxBound = DynamicObj.generateBounds(x * blockSize, y * blockSize, blockSize, blockSize);
         const found = this.getTree().blockFind(bounds);
         if(found) return false;
 
-        this.addBlock(x, y, type);
-        return true;
+        return this.addBlock(x, y, type);
     }
 
     destroyBlock(obj: BaseObject) {

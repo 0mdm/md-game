@@ -36,7 +36,8 @@ export class BaseObject {
         this.sprite = new Sprite(o.texture);
         this.id = idCounter++;
 
-        this.sprite.position.set(this.pos.x, this.pos.y);
+        this.sprite.pivot.set(this.pos.width/2, this.pos.height/2);
+        this.sprite.position.set(this.pos.x + this.pos.width/2, this.pos.y + this.pos.height/2);
         this.sprite.width = this.pos.width;
         this.sprite.height = this.pos.height;
 

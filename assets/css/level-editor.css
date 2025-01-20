@@ -43,3 +43,14 @@
     border-color: black;
     background-color: gray;
 }
+
+#ui > #level-editor > #util {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+#ui > #level-editor .deg-0 img {transform: rotate(0deg)}
+#ui > #level-editor .deg-90 img {transform: rotate(90deg)}
+#ui > #level-editor .deg-180 img {transform: rotate(180deg)}
+#ui > #level-editor .deg-270 img {transform: rotate(270deg)}
