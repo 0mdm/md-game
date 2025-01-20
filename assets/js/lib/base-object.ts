@@ -54,6 +54,13 @@ export class BaseObject {
         };
     }
 
+    destroy(): void {
+        this.id = NaN;
+        this.character = " ";
+        this.onTouch = () => undefined;
+        this.sprite.destroy();
+    }
+
     kill() {}
 
     hurt(dmg: number) {}

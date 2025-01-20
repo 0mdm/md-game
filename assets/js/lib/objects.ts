@@ -57,7 +57,7 @@ export class Player extends DynamicObj {
 
         this.worldContainer = o.worldContainer;
         this.sprite.width = blockSize;
-        this.sprite.position.x -= 8;
+        this.sprite.position.x -= 12;
     }
 
     override updateSpriteX(x: number): void {

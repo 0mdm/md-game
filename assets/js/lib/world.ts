@@ -49,7 +49,7 @@ export class World {
         this.player = new Player({
             worldContainer: this.container,
             height: 40,
-            actualWidth: 24,
+            actualWidth: 10,
             texture: textures["player/player.png"],
             getTree: () => this.trees[this.cLevel],
         });
@@ -115,6 +115,26 @@ export class World {
 
         this.addBlock(x, y, type);
         return true;
+    }
+
+    destroyBlock(obj: BaseObject) {
+        this.container.removeChild(obj.sprite);
+        const result = this.getTree().deleteObj(obj.pos);
+        if(!result) throw new Error(
+            "objects.ts: couldn't delete unknown block"
+        );
+    }
+
+    removeBlock(x: number, y: number) {
+        const bounds: BoxBound = DynamicObj.generateBounds(x * blockSize, y * blockSize, blockSize, blockSize);
+        const found = this.getTree().blockFind(bounds);
+        if(!found) return;
+        if(found.length > 1) throw new Error(
+            "objects.ts: found length is greater than 1"
+        );
+
+        const block = found[0];
+        this.destroyBlock(block);
     }
 
     async convertLevelToString(): Promise<string> {

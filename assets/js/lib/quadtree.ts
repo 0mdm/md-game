@@ -180,4 +180,25 @@ export class Quadtree {
 
         return false;
     }
+
+    deleteObj(e: BoxBound): boolean {
+        if(isColliding(this, e)) {
+            if(this.isDivided) {
+                for(const node of this.nodes) {
+                    const result = node.deleteObj(e);
+                    if(result) return result;
+                }
+            } else {
+                if(this.children.length == 0) return false;
+
+                for(const obj of this.children) obj.destroy();
+
+                this.children = [];
+
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
