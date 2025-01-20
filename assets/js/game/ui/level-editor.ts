@@ -5,6 +5,7 @@ import { player, world } from "../start";
 import { createBackBtn, menuBar } from "./menu";
 import { blockSize } from "../../lib/quadtree";
 import { ElList } from "../../lib/ui";
+import { images } from "../../main/canvas";
 
 const pan = new PanController({
     touchEl: $("#ui") as HTMLDivElement,
@@ -111,9 +112,9 @@ getText.addEventListener("pointerup", async e => {
 
 const blocks = $("#ui > #level-editor #blocks") as HTMLDivElement;
 const elList = new ElList(blocks, [
-    ElList.generate("delete", "assets/sprites/misc/trash.png"),
-    ElList.generate("basic", "assets/sprites/blocks/block.png"),
-    ElList.generate("spike", "assets/sprites/blocks/spike.png"),
+    ElList.generate("delete", images["misc/trash.png"]),
+    ElList.generate("basic", images["blocks/block.png"]),
+    ElList.generate("spike", images["blocks/spike.png"]),
 ], (name: string, el: HTMLElement) => {
     pan.setGrabCursor("crosshair", "crosshair");
     el.classList.add("block-selected");
