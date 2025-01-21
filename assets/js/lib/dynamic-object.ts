@@ -66,12 +66,10 @@ export class DynamicObj extends BaseObject {
 
     disable() {
         this.gravityEnabled = false;
-        this.sprite.visible = false;
     }
 
     enable() {
         this.gravityEnabled = true;
-        this.sprite.visible = true;
     }
 
     tp(x: number, y: number) {

@@ -1,12 +1,12 @@
 
 #ui > #level-editor {
     pointer-events: none;
-    background-color: rgba(10, 10, 10, 0.8);
+    background-color: var(--color-gray);
     padding: 10px;
     height: 220px;
 }
 
-#ui > #level-editor button {
+#ui button {
     pointer-events: auto;
     border: 2px solid black;
     color: black;
@@ -14,7 +14,7 @@
     border-radius: 10px;
 }
 
-#ui > #level-editor button:active {
+#ui button:active {
     border: 2px solid gray;
     color: blue;
     background-color: gray;

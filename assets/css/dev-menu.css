@@ -1,0 +1,11 @@
+
+#ui > #dev-menu {
+    position: fixed;
+    width: 300px;
+    padding: 10px;
+    left: 0;
+    bottom: calc(var(--h) / 2);
+    background-color: var(--color-gray);
+    flex-direction: column;
+    border: 5px solid rgba(0.3, 0.3, 0.3, 0.3)
+}

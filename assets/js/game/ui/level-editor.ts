@@ -24,6 +24,8 @@ var cy = 0;
 function onPan(x: number, y: number) {
     world.container.position.x -= x;
     world.container.position.y -= y;
+    player.sprite.position.x -= x;
+    player.sprite.position.y -= y;
     cx += x;
     cy += y;
 }
@@ -43,6 +45,8 @@ function disableLevelEditor() {
     enableControls();
     world.container.position.x += cx;
     world.container.position.y += cy;
+    player.sprite.position.x += cx;
+    player.sprite.position.y += cy;
     cx = 0;
     cy = 0;
     menuBar.style.display = "flex";

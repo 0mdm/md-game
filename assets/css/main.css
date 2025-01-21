@@ -6,6 +6,7 @@
 
 :root {
     --sw: 300px;
+    --color-gray: rgba(10, 10, 10, 0.8);
 }
 
 body {
@@ -74,6 +75,8 @@ img {
     border: 2px outset black;
     color: teal;
     background-color: white;
+    border-radius: 0;
+    padding: 3px;
 }
 
 #ui > #menu-bar > button:active {
