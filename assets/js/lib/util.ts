@@ -141,3 +141,7 @@ export function btnList(arr: HTMLButtonElement[], up?: () => void) {
 export function rand255(): number {
   return Math.floor(Math.random() * 256);
 }
+
+export function round(n: number, digits: number) {
+  return Math.round(n * digits) / digits;
+}

@@ -1,0 +1,17 @@
+
+#ui > #texture-packer {
+    position: fixed;
+    top: 0;
+    width: var(--w);
+    height: var(--h);
+    background-color: #7ad2de;
+    flex-direction: column;
+    border: 20px solid #29a2d6;
+    border-radius: 30px;
+}
+
+#ui > #texture-packer > #bottom {
+    margin-top: auto;
+    width: var(--w);
+    border-top: 2px solid black;
+}

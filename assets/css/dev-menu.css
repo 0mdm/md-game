@@ -7,5 +7,17 @@
     bottom: calc(var(--h) / 2);
     background-color: var(--color-gray);
     flex-direction: column;
-    border: 5px solid rgba(0.3, 0.3, 0.3, 0.3)
+    border: 5px solid rgba(0.3, 0.3, 0.3, 0.3);
+}
+
+#ui > #debug-area {
+    color: white;
+    position: fixed;
+    right: 20px;
+    width: 200px;
+    background-color: var(--color-gray);
+    border: 5px solid rgba(0.3, 0.3, 0.3, 0.3);
+    bottom: calc(var(--h) / 2);
+    flex-direction: column;
+    pointer-events: none;
 }

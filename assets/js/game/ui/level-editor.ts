@@ -9,8 +9,10 @@ import { images } from "../../main/canvas";
 import { BaseObject } from "../../lib/base-object";
 import { spritesheetAsset } from "pixi.js";
 
+const panArea = $("#pan-area") as HTMLDivElement;
+
 const pan = new PanController({
-    touchEl: $("#ui > #pan-area") as HTMLDivElement,
+    touchEl: panArea,
     enabled: false
 });
 
@@ -32,6 +34,7 @@ function onPan(x: number, y: number) {
 
 export function enableLevelEditor() {
     levelEditor.style.display = "block";
+    panArea.style.pointerEvents = "auto";
     player.disable();
     disableControls();
     
@@ -41,6 +44,7 @@ export function enableLevelEditor() {
 
 function disableLevelEditor() {
     levelEditor.style.display = "none";
+    panArea.style.pointerEvents = "none";
     player.enable();
     enableControls();
     world.container.position.x += cx;

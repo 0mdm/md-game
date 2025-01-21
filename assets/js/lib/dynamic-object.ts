@@ -29,7 +29,7 @@ export class DynamicObj extends BaseObject {
     jumpTime = 0;
     jumpTimeLimit = 25;
     fg = 0;
-    fgmax = -6;
+    fgmax = -10;
     vy: number = 0;
     vx: number = 0;
     hp: number;
@@ -99,16 +99,19 @@ export class DynamicObj extends BaseObject {
         this.sidePos.maxY = this.sidePos.y + this.sidePos.height;
     }
 
-    seperateX(o: BaseObject) {
-        if(this.pos.x < o.pos.x) {
+    seperateX(o: BaseObject, deltaTime: number) {
+        if(this.sidePos.x - this.vx < o.pos.x) {
             // right
-            const vx = o.pos.x - this.pos.maxX;
+            const vx = o.pos.x - this.sidePos.maxX;
 
+            //console.log(Math.round(vx * 100) / 100);
+            this.vx = 0;
             this.moveRight(vx);
         } else {
             // left
-            const vx = o.pos.maxX - this.pos.x;
+            const vx = o.pos.maxX - this.sidePos.x;
 
+            this.vx = 0;
             this.moveRight(vx);
         }
     
@@ -166,10 +169,13 @@ export class DynamicObj extends BaseObject {
         this.updateSpriteY(y);
     }
 
-    detectCollisionX(tree: Quadtree) {
+    detectCollisionX(tree: Quadtree, deltaTime: number) {
         const collidedX: BaseObject[] | false = tree.find(this.sidePos, this);
-        if(collidedX)
-            this.seperateX(collidedX[0]);
+        if(collidedX) {
+            this.seperateX(collidedX[0], deltaTime);
+        } else {
+            this.vx = 0;
+        }
     }
 
     detectCollisionY(tree: Quadtree, deltaTime: number) {
@@ -199,7 +205,7 @@ export class DynamicObj extends BaseObject {
             event(this);
         }
 
-        if(this.gravityEnabled && (this.fg * deltaTime > this.fgmax)) {
+        if(this.gravityEnabled && (this.fg > this.fgmax)) {
             this.fg -= this.currentGravity * deltaTime;
             if(this.fg < this.fgmax) this.fg = this.fgmax;
         }
@@ -207,10 +213,10 @@ export class DynamicObj extends BaseObject {
         this.detectCollisionY(tree, deltaTime);
         this.updatePos(this.vx, this.vy);
         this.updateSpritePos(this.vx, this.vy);
-        this.vx = 0;
+        //this.vx = 0;
         this.vy = 0;
 
-        this.detectCollisionX(tree);
+        this.detectCollisionX(tree, deltaTime);
         this.updateX(this.vx);
         this.updateSpriteX(this.vx);
         this.vx = 0;

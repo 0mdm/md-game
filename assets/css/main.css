@@ -37,6 +37,8 @@ body {
     -khtml-user-drag: none;
     -moz-user-drag: none;
     -o-user-drag: none;
+
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 #ui {
@@ -110,7 +112,10 @@ img {
     filter: contrast(50%);
 }
 
-#ui > #pan-area {
+#pan-area {
+    pointer-events: none;
+    position: fixed;
     width: var(--w);
     height: calc(var(--h) - 220px);
+    bottom: 0;
 }

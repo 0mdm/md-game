@@ -11,7 +11,8 @@
     <link rel="stylesheet" href="/assets/css/inventory.css">
     <link rel="stylesheet" href="/assets/css/stats.css">
     <link rel="stylesheet" href="/assets/css/dev-menu.css">
-    <script defer src="/assets/js/main/loader" type="module"></script>
+    <link rel="stylesheet" href="/assets/css/texture-packer.css">
+    <script defer src="/assets/js/main/loader" type="module"></script> 
 
     <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
     <script>eruda.init();</script>
@@ -59,12 +60,16 @@
             </div>
         </div>
         <div id="dev-menu" class="hidden"></div>
-        <div id="pan-area"></div>
+        <div id="debug-area" class="hidden"></div>
+        <div id="texture-packer" class="hidden">
+            <div id="bottom"></div>
+        </div>
     </div>
     <canvas id="c">
         Error!
         Canvas isn't supported
     </canvas>
+    <div id="pan-area"></div>
    </main>
 </body>
 </html>

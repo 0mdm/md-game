@@ -69,3 +69,7 @@ export class ElList {
         };
     }
 }
+
+export function textEl(text: string) {
+    return $$("p", {text});
+}

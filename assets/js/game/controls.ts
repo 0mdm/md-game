@@ -2,6 +2,7 @@ import { $ } from "../lib/util";
 import { audio } from "../main/canvas";
 import { player, world } from "./start";
 import { Howl } from "howler";
+import { setDebugStats } from "./ui/dev/debug";
 
 const jumpSfx = new Howl({
     src: [audio["sfx/jump.mp3"]],
@@ -63,6 +64,7 @@ export function loop() {
 
     const rDelta = current - lastUpdate;
     const deltaTime = rDelta / expectedFPS;
+    const fps = 1000 / rDelta;
     lastUpdate = current;
 
     if(controlsIsDisabled) return requestAnimationFrame(loop);
@@ -91,6 +93,8 @@ export function loop() {
     for(const entity of world.entities) {
         entity.tick(deltaTime);
     }
+
+    setDebugStats(fps, rDelta, deltaTime);
 
     requestAnimationFrame(loop);
 }
