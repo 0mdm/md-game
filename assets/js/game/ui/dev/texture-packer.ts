@@ -44,23 +44,39 @@ for(const image in images) {
         "texture-packer.ts: " + `"${url}" returns undefined name`
     );
 
+    if(name == "spritesheet") continue;
+
     meshes.push({name, url});
 
     main.appendChild(el);
 }
 
 async function packTextures() {
-    const packer = new TexturePacker(meshes);
-
-    packer.pack()
-    .then(c => {
-        const url = c.toDataURL();
-        const img = $$("img", {
-            attrs: {
-                id: "atlas",
-                src: url,
-            },
-        });  
-        main.appendChild(img);
+    const packer = new TexturePacker({
+        textures: meshes,
+        currentSpritesheets: {
+            "player-walk": {
+                width: 32,
+                amount: 4,
+            }
+        },
     });
+
+    const c = await packer.pack();
+    const url = c.toDataURL();
+    const img = $$("img", {
+        attrs: {
+            id: "atlas",
+            src: url,
+        },
+    });  
+    main.appendChild(img);
+
+    /*for(const i in packer.data.frames) {
+        console.log(i, packer.data.frames[i].frame);
+    }
+
+    console.log(packer.data.animations);*/
+
+    console.log(JSON.stringify(packer.data));
 }

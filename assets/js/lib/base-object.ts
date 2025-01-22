@@ -1,4 +1,4 @@
-import { Sprite, Texture } from "pixi.js";
+import { AnimatedSprite, AnimatedSpriteOptions, Sprite, Texture } from "pixi.js";
 import { DynamicObj, DynamicObjOpts } from "./dynamic-object";
 
 var idCounter = 0;
@@ -20,12 +20,13 @@ export interface BaseObjectOpts {
     texture: Texture;
     character: string;
     onTouch?: (e: BaseObject) => void;
+    customSprite?: AnimatedSprite;
 }
 
 export class BaseObject {
     character: string;
     pos: BoxBound;
-    sprite: Sprite;
+    sprite: Sprite | AnimatedSprite;
     id: number;
 
     onTouch: (o: BaseObject) => void = () => undefined;
@@ -33,7 +34,11 @@ export class BaseObject {
     constructor(o: BaseObjectOpts) {
         this.character = o.character;
         this.pos = BaseObject.generateBounds(o.x, o.y, o.width, o.height);
-        this.sprite = new Sprite(o.texture);
+
+        if(o.customSprite) {
+            this.sprite = o.customSprite;
+        } else this.sprite = new Sprite(o.texture);
+
         this.id = idCounter++;
 
         this.sprite.anchor.set(.5);

@@ -79,14 +79,17 @@ export function loop() {
         player.jumpEnd();
     }
 
+    player.stopWalking();
     if(moving.left) {
         player.turnLeft();
         player.moveLeft(speed * deltaTime);
+        player.continueWalking();
     }
 
     if(moving.right) {
         player.turnRight();
         player.moveRight(speed * deltaTime);
+        player.continueWalking();
     }
     player.tick(deltaTime);
 

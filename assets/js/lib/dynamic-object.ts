@@ -1,4 +1,4 @@
-import { Container, Sprite, Texture } from "pixi.js";
+import { AnimatedSprite, Container, Sprite, Texture } from "pixi.js";
 import { Quadtree } from "./quadtree";
 import { BaseObject, BaseObjectOpts, BoxBound } from "./base-object";
 
@@ -13,6 +13,7 @@ export interface DynamicObjOpts extends BaseObjectOpts {
     texture: Texture;
     hpMax?: number;
     getTree: () => Quadtree;
+    customSprite?: AnimatedSprite;
 }
 
 // ifc = invicincibility flicker counter
@@ -36,6 +37,7 @@ export class DynamicObj extends BaseObject {
     hpMax: number = 10;
     invincibilityTimer: number = 0;
     invincible: boolean = false;
+    isJumping: boolean = false;
 
     sidePos: BoxBound;
 
@@ -44,15 +46,12 @@ export class DynamicObj extends BaseObject {
     events: ((self: this) => void)[] = [];
 
     onJumpStart: () => void = () => undefined;
+    onHitFloor: () => void = () => undefined;
 
     constructor(o: DynamicObjOpts) {
         super(o);
-        this.pos = DynamicObj.generateBounds(o.x, o.y, o.width, o.height);
         this.sidePos = DynamicObj.generateBounds(o.x, o.y + o.offsetHeightX, o.width, o.heightX);
         //this.sidePos = DynamicObj.generateBounds(o.x, o.y, o.width, o.height );
-        this.sprite = new Sprite(o.texture);
-        this.sprite.width = o.width;
-        this.sprite.height = o.height;
         this.sprite.anchor.set(0);
         this.sprite.position.set(this.pos.x, this.pos.y);
         this.sprite.zIndex = 2;
@@ -125,6 +124,9 @@ export class DynamicObj extends BaseObject {
             this.jumpTime = 0;
             this.fg = 0;
             this.currentGravity = 0;
+            
+            if(this.isJumping) this.onHitFloor();
+            this.isJumping = false;
         } else {
             // ceiling
             const fNormal = this.pos.y - o.pos.maxY + vDown;
@@ -254,6 +256,7 @@ export class DynamicObj extends BaseObject {
         if(this.jumpTime == 0) this.onJumpStart();
 
         if(this.jumpTime < this.jumpTimeLimit) {
+            this.isJumping = true;
             this.currentGravity = 0;
             this.jumpTime += deltaTime;
             this.fg = this.jumpIntensity;

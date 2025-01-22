@@ -1,9 +1,10 @@
-import { Container, measureHtmlText, ObservablePoint, Sprite, squaredDistanceToLineSegment, Texture, v8_0_0 } from "pixi.js";
+import { AnimatedSprite, Container, getUrlExtension, measureHtmlText, ObservablePoint, Sprite, squaredDistanceToLineSegment, Texture, v8_0_0 } from "pixi.js";
 import { halfHeight, halfWidth } from "../main/canvas";
 import { app } from "../main/app";
 import { blockSize, Quadtree } from "./quadtree";
 import { DynamicObj, DynamicObjOpts } from "./dynamic-object";
 import { $ } from "./util";
+import { spritesheet } from "../main/atlas";
 
 /*
 export interface QuadtreeBox {
@@ -37,6 +38,8 @@ const hpEl = $("#ui > #stats > #health-c") as HTMLElement;
 const hpElWidth: number = Number(getComputedStyle(document.documentElement).getPropertyValue("--sw").slice(0, -2));
 
 export class Player extends DynamicObj {
+    isPlayingWalkAnim: boolean = false;
+    isWalking: boolean = false;
     worldContainer: Container;
 
     constructor(o: PlayerOpts) {
@@ -51,13 +54,25 @@ export class Player extends DynamicObj {
             texture: o.texture,
             getTree: o.getTree,
             offsetHeightX: 3,
+            customSprite: new AnimatedSprite(spritesheet.animations["player-walk"]),
         };
 
         super(opts);
 
+        (this.sprite as AnimatedSprite).animationSpeed = 0.11;
+
         this.worldContainer = o.worldContainer;
         this.sprite.width = 32;
         this.sprite.position.x -= 12;
+
+        this.onHitFloor = function() {
+            this.isPlayingWalkAnim = false;
+            const s = this.sprite as AnimatedSprite;
+            var f = s.currentFrame+1;
+            if(f >= s.totalFrames) f = 0;
+
+            s.gotoAndStop(f);
+        }
     }
 
     override updateSpriteX(x: number): void {
@@ -92,6 +107,15 @@ export class Player extends DynamicObj {
         this.activateInvincibility(50);
     }
 
+    continueWalking() {
+        if(this.isJumping) return;
+        this.isWalking = true;
+    }
+
+    stopWalking() {
+        this.isWalking = false;
+    }
+
     turnLeft() {
         this.sprite.anchor.x = 1;
         this.sprite.scale.x = -1;
@@ -100,6 +124,24 @@ export class Player extends DynamicObj {
     turnRight() {
         this.sprite.anchor.x = 0;
         this.sprite.scale.x = 1;
+    }
+
+    override extraTick(deltaTime: number): void {
+        if(!this.isPlayingWalkAnim && this.isWalking) {
+            this.isPlayingWalkAnim = true;
+            (this.sprite as AnimatedSprite).play();
+        } else if(this.isPlayingWalkAnim && !this.isWalking) {
+            this.isPlayingWalkAnim = false;
+            (this.sprite as AnimatedSprite).stop();
+        }
+    }
+
+    override jump(deltaTime: number): void {
+        super.jump(deltaTime);
+        if(this.isPlayingWalkAnim && this.isJumping) {
+            this.isPlayingWalkAnim = false;
+            (this.sprite as AnimatedSprite).stop();
+        }
     }
 }
 
