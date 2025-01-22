@@ -10,8 +10,19 @@
     border-radius: 30px;
 }
 
+#ui > #texture-packer canvas {
+    border: 2px dashed black;
+}
+
+#ui > #texture-packer #atlas {
+    pointer-events: auto;
+    -webkit-touch-callout: default;
+    border: 2px dashed red;
+}
+
 #ui > #texture-packer > #bottom {
     margin-top: auto;
-    width: var(--w);
+    width: auto;
+    padding: 20px;
     border-top: 2px solid black;
 }

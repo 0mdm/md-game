@@ -1,9 +1,12 @@
+import { TextureMesh, TexturePacker } from "../../../lib/pack-textures";
 import { btn1 } from "../../../lib/ui";
-import { $, btnList } from "../../../lib/util";
+import { $, $$, btnList } from "../../../lib/util";
+import { images } from "../../../main/canvas";
 import { createBackBtn } from "../menu";
 
 const texturePackerEl = $("#ui > #texture-packer") as HTMLDivElement;
-
+const main = $("#ui > #texture-packer #main") as HTMLDivElement;
+const bottom = $("#ui > #texture-packer #bottom") as HTMLDivElement;
 
 export function enableTexturePacker() {
     texturePackerEl.style.display = "flex";
@@ -12,4 +15,52 @@ export function enableTexturePacker() {
 const back = createBackBtn(() => texturePackerEl.style.display = "none");
 texturePackerEl.prepend(back);
 
+var isDisabled = false;
+const createAtlas = btn1("Create Atlas");
+createAtlas.style.backgroundColor = "#46db96";
+
+createAtlas.onpointerup = async function() {
+    if(isDisabled) return;
+    isDisabled = true;
+    createAtlas.style.backgroundColor = "#4b705f";
+    createAtlas.setAttribute("disabled", "true");
+    createAtlas.textContent = "Disabled";
     
+    await packTextures();
+}; 
+
+bottom.appendChild(createAtlas);
+
+const meshes: TextureMesh[] = [];
+
+for(const image in images) {
+    const url = images[image];
+    const el = $$("img", {
+        attrs: {src: url},
+    });
+
+    const name = url.match((/[^\/.]+\./))?.[0].slice(0, -1);
+    if(name == undefined) throw new Error(
+        "texture-packer.ts: " + `"${url}" returns undefined name`
+    );
+
+    meshes.push({name, url});
+
+    main.appendChild(el);
+}
+
+async function packTextures() {
+    const packer = new TexturePacker(meshes);
+
+    packer.pack()
+    .then(c => {
+        const url = c.toDataURL();
+        const img = $$("img", {
+            attrs: {
+                id: "atlas",
+                src: url,
+            },
+        });  
+        main.appendChild(img);
+    });
+}
