@@ -8,6 +8,7 @@ import { ElList } from "../../lib/ui";
 import { images } from "../../main/canvas";
 import { BaseObject } from "../../lib/base-object";
 import { spritesheetAsset } from "pixi.js";
+import { screenHeight, screenWidth } from "../../main/app";
 
 const panArea = $("#pan-area") as HTMLDivElement;
 
@@ -60,12 +61,15 @@ function disableLevelEditor() {
     elList.exit();
 }
 
+const offsetX = (innerWidth - screenWidth) / 2;
+const offsetY = (innerHeight - screenHeight) / 2;
+
 function getBlockPos(px: number, py: number): [number, number] {
-    const worldX = px - world.container.position.x;
-    const worldY = py - world.container.position.y;
+    const worldX = px - offsetX - world.container.position.x;
+    const worldY = py - offsetY - world.container.position.y;
 
     const x = Math.floor(worldX / blockSize);
-    const y = Math.floor(worldY / blockSize);
+    const y = Math.round(worldY / blockSize);
 
     return [x, y];
 }

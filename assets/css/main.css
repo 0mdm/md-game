@@ -11,14 +11,16 @@
 
 body {
     touch-action: none;
+    background-color: black;
 }
 
 #c {
     display: block;
     width: var(--w);
     height: var(--h);
-    background-color: black;
+    background-color: white;
     pointer-events: none;
+    margin: auto;
 }
 
 body {

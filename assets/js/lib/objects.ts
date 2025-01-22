@@ -1,6 +1,6 @@
 import { AnimatedSprite, Container, getUrlExtension, measureHtmlText, ObservablePoint, Sprite, squaredDistanceToLineSegment, Texture, v8_0_0 } from "pixi.js";
 import { halfHeight, halfWidth } from "../main/canvas";
-import { app } from "../main/app";
+import { app, screenHeight, screenWidth } from "../main/app";
 import { blockSize, Quadtree } from "./quadtree";
 import { DynamicObj, DynamicObjOpts } from "./dynamic-object";
 import { $ } from "./util";
@@ -46,8 +46,8 @@ export class Player extends DynamicObj {
         const opts: DynamicObjOpts = {
             character: "@",
             container: app.stage,
-            x: halfWidth,
-            y: halfHeight,
+            x: screenWidth / 2,
+            y: screenHeight / 2,
             width: o.actualWidth,
             height: o.height,
             heightX: o.height - 4,

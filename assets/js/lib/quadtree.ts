@@ -96,7 +96,8 @@ export class Quadtree {
         const size = (2048 * 2) / (blockSize * 2);
         if(this.width == size) {
             const s = new Sprite(Texture.WHITE);
-            s.tint = Math.random() * 0xffffff;
+            //s.tint = Math.random() * 0xffffff;
+            s.tint = 0xe2fad9;
             s.anchor.set(0, 0);
             s.position.set(this.x, this.y);
             s.width = this.width;
