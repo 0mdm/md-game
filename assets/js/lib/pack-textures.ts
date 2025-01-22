@@ -137,6 +137,7 @@ export class TexturePacker {
     }
 
     private generateData(x: number, y: number, width: number, height: number) {
+        
         return {
             frame: {
                 x,

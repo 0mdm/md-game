@@ -21,6 +21,7 @@ for(const [name, img] of imgArr) {
     if(typeof recievedImages == "object") {
         images[name] = recievedImages.default;
         textures[name] = await Assets.load(images[name]);
+        textures[name].source.scaleMode = "nearest";
     } else {
         throw new Error(
             `loader.ts: recieved type wasn't "{default: string}"`

@@ -6,8 +6,11 @@ const spritesheetObj =
 
 if(images["spritesheet.png"] == undefined) alert("Error: spritesheet wasn't loaded");
 
+const t = Texture.from(images["spritesheet.png"]);
+t.source.scaleMode = "nearest";
+
 const spritesheet = new Spritesheet(
-    Texture.from(images["spritesheet.png"]),
+    t,
     spritesheetObj,
 );
 
