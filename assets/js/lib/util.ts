@@ -145,3 +145,7 @@ export function rand255(): number {
 export function round(n: number, digits: number) {
   return Math.round(n * digits) / digits;
 }
+
+export function floorToMultiples(n: number, mul: number) {
+  return Math.floor(n / mul) * mul;
+}

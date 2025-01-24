@@ -1,5 +1,5 @@
 import { Container, Sprite, Texture } from "pixi.js";
-import { Keymap } from "./keymap";
+import { Keymap, Map2D } from "./keymap";
 import { blockSize, Quadtree, setQuadreeDebug } from "./quadtree";
 import { Player, PlayerOpts, setSpawn } from "./objects";
 import { app } from "../main/app";
@@ -7,6 +7,8 @@ import { textures } from "../main/canvas";
 import { DynamicObj } from "./dynamic-object";
 import { Enemy } from "./enemy";
 import { BaseObject, BoxBound } from "./base-object";
+import { ContainerZindex, generateZIndexContainers } from "./chunk";
+import { floorToMultiples } from "./util";
 
 interface TreeMap {
     [index: string]: Quadtree;
@@ -25,11 +27,17 @@ interface WorldOpts {
 
 export class World {
     trees: TreeMap = {};
-    container = new Container(); // world
+    worldContainer: Container; // current container
+    worldContainerMap: ContainerZindex;
+    container: {[level: string]: ContainerZindex} = {};
     keymap = new Keymap();
     player: Player;
     cLevel: string; // current level
+    chunkSize: number = 16;
     size: number = 2048 * 2;
+    renderDx: number = 2;
+    renderDy: number = 1;
+    loadedChunks: {[coord: string]: Container} = {};
 
     entities: Enemy[] = [];
 
@@ -41,13 +49,16 @@ export class World {
 
     constructor(o: WorldOpts) {
         this.cLevel = o.startLevel;
+        this.container[this.cLevel] = generateZIndexContainers();
+        this.worldContainer = this.container[this.cLevel].all;
+        this.worldContainerMap = this.container[this.cLevel];
 
         o.player ||= {};
 
-        setQuadreeDebug(this.container);
+        setQuadreeDebug(this.worldContainer);
 
         this.player = new Player({
-            worldContainer: this.container,
+            worldContainer: this.worldContainer,
             height: 40,
             actualWidth: 10,
             texture: textures["player/player.png"],
@@ -61,7 +72,12 @@ export class World {
         this.setKeymap();
         this.loadLevel(this.cLevel);
 
-        app.stage.addChild(this.container);
+        app.stage.addChild(this.worldContainer);
+        setInterval(() => this.chunkLoop(), 1000 / 2);
+    }
+
+    getChunkN(n: number): number {
+        return floorToMultiples(n, this.chunkSize);
     }
 
     loadLevel(l: string) {
@@ -100,11 +116,56 @@ export class World {
         });
     }
 
+    chunkLoop() {
+        const chunkX = this.getChunkN(this.player.pos.x / blockSize);
+        const chunkY = this.getChunkN(this.player.pos.y / blockSize);
+
+        const chunksToBeDeleted: {[coord: string]: Container} = {};
+
+        this.worldContainerMap.platform
+        .radius(chunkX, chunkY, this.renderDx+1, this.renderDx+1, this.chunkSize, (coord: string, c: Container) => {
+            if(this.loadedChunks[coord] == undefined) return;
+            chunksToBeDeleted[coord] = c;
+        });
+
+        this.worldContainerMap.platform
+        .radius(chunkX, chunkY, this.renderDx, this.renderDy, this.chunkSize, (coord: string, c: Container) => {
+            delete chunksToBeDeleted[coord];
+            this.loadedChunks[coord] = c;
+            this.worldContainer.addChild(c);
+        });
+
+        for(const coord in chunksToBeDeleted) {
+            delete this.loadedChunks[coord];
+            this.worldContainer.removeChild(chunksToBeDeleted[coord]);
+        }
+    }
+
+    getChunkCoord(x: number, y: number): string {
+        return Map2D.coord(this.getChunkN(x), this.getChunkN(y));
+    }
+
+    private addToPlatform(coord: string, s: Sprite) {
+        if(this.worldContainerMap.platform.map[coord] == undefined) {
+            const c = new Container();
+            this.worldContainerMap.platform.map[coord] = c;
+            //this.worldContainerMap.all.addChild(c);
+        }
+
+        this.worldContainerMap.platform.map[coord].addChild(s);
+    }
+
     addBlock(x: number, y: number, type: string): BaseObject {
         const o = blockTypes[type](x, y, this);
         if(o instanceof DynamicObj) return o;
 
-        this.container.addChild(o.sprite);
+        const chunkCoord: string = this.getChunkCoord(x, y);
+        this.addToPlatform(chunkCoord, o.sprite);
+
+        /*this.worldContainerMap.platform.map[chunkCoord].visible = false;
+        if(this.test) this.worldContainerMap.platform.map[chunkCoord].visible = false;
+        this.test = !this.test;*/
+
         this.keymapInsert(o);
         return o;
     }
@@ -118,7 +179,7 @@ export class World {
     }
 
     destroyBlock(obj: BaseObject) {
-        this.container.removeChild(obj.sprite);
+        this.worldContainer.removeChild(obj.sprite);
         const result = this.getTree().deleteObj(obj.pos);
         if(!result) throw new Error(
             "objects.ts: couldn't delete unknown block"
@@ -202,7 +263,7 @@ const blockTypes: {[index: string]: (x: number, y: number, world?: World) => Bas
 
             // wtf is this bug
             getTree: () => world!.getTree(),
-            container: world!.container,
+            container: world!.worldContainer,
         });
 
         world!.entities.push(o);

@@ -6,6 +6,7 @@ import { setDebugStats } from "./ui/dev/debug";
 
 const jumpSfx = new Howl({
     src: [audio["sfx/jump.mp3"]],
+    html5: true,
 });
 
 function up(el: HTMLButtonElement, f: () => void) {

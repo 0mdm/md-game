@@ -25,8 +25,8 @@ var cx = 0;
 var cy = 0;
 
 function onPan(x: number, y: number) {
-    world.container.position.x -= x;
-    world.container.position.y -= y;
+    world.worldContainer.position.x -= x;
+    world.worldContainer.position.y -= y;
     player.sprite.position.x -= x;
     player.sprite.position.y -= y;
     cx += x;
@@ -48,8 +48,8 @@ function disableLevelEditor() {
     panArea.style.pointerEvents = "none";
     player.enable();
     enableControls();
-    world.container.position.x += cx;
-    world.container.position.y += cy;
+    world.worldContainer.position.x += cx;
+    world.worldContainer.position.y += cy;
     player.sprite.position.x += cx;
     player.sprite.position.y += cy;
     cx = 0;
@@ -65,8 +65,8 @@ const offsetX = (innerWidth - screenWidth) / 2;
 const offsetY = (innerHeight - screenHeight) / 2;
 
 function getBlockPos(px: number, py: number): [number, number] {
-    const worldX = px - offsetX - world.container.position.x;
-    const worldY = py - offsetY - world.container.position.y;
+    const worldX = px - offsetX - world.worldContainer.position.x;
+    const worldY = py - offsetY - world.worldContainer.position.y;
 
     const x = Math.floor(worldX / blockSize);
     const y = Math.round(worldY / blockSize);

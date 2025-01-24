@@ -10,5 +10,5 @@ export const player = world.player;
 
 setPlayerObj(player);
 
-app.stage.addChild(world.container);
+app.stage.addChild(world.worldContainer);
 

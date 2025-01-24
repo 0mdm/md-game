@@ -56,3 +56,38 @@ export class Keymap {
         return final.join("\n");
     }
 }
+
+export class Map2D<T> {
+    map: {[coord: string]: T} = {};
+
+    constructor() {}
+
+    static coord(x: number, y: number): string {
+        return `${x},${y}`;
+    }
+
+    private getFromCoord(str: string): [x: number, y: number] {
+        return str.split(",").map(n => Number(n)) as [number, number];
+    }
+
+    set(coord: string, t: T) {
+        this.map[coord] = t;
+    }
+
+    forEach(f: (t: T) => void) {
+        for(const i in this.map) f(this.map[i]);
+    }
+
+    radius(x: number, y: number, rx: number, ry: number, size: number, f: (coord: string, t: T) => void) {
+        for(let dx = -rx; dx <= rx; dx++) {
+            for(let dy = -ry; dy <= ry; dy++) {
+                //if(dx === 0 && dy === 0) continue;
+                const coord: string = Map2D.coord(x + dx * size, y + dy * size);
+                const res = this.map[coord];
+                if(res == undefined) continue;
+
+                f(coord, res);
+           }
+        }
+    }
+}

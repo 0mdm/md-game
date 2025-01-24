@@ -41,6 +41,7 @@ export class BaseObject {
 
         this.id = idCounter++;
 
+        this.sprite.cullable = true;
         this.sprite.anchor.set(.5);
         this.sprite.position.set(this.pos.x + this.pos.width / 2, this.pos.y + this.pos.height / 2);
         this.sprite.width = this.pos.width;
