@@ -7,7 +7,7 @@ import { blockSize } from "../../lib/quadtree";
 import { ElList } from "../../lib/ui";
 import { images } from "../../main/canvas";
 import { BaseObject } from "../../lib/base-object";
-import { spritesheetAsset } from "pixi.js";
+import { checkChildrenDidChange, spritesheetAsset } from "pixi.js";
 import { screenHeight, screenWidth } from "../../main/app";
 
 const panArea = $("#pan-area") as HTMLDivElement;
@@ -25,6 +25,8 @@ var cx = 0;
 var cy = 0;
 
 function onPan(x: number, y: number) {
+    world.worldPosX += x;
+    world.worldPosY += y;
     world.worldContainer.position.x -= x;
     world.worldContainer.position.y -= y;
     player.sprite.position.x -= x;
@@ -34,6 +36,7 @@ function onPan(x: number, y: number) {
 }
 
 export function enableLevelEditor() {
+    world.isBoundToPlayerPos = false;
     levelEditor.style.display = "block";
     panArea.style.pointerEvents = "auto";
     player.disable();
@@ -44,6 +47,9 @@ export function enableLevelEditor() {
 }
 
 function disableLevelEditor() {
+    world.isBoundToPlayerPos = true;
+    world.worldPosX -= cx;
+    world.worldPosY -= cy;
     levelEditor.style.display = "none";
     panArea.style.pointerEvents = "none";
     player.enable();
@@ -66,10 +72,10 @@ const offsetY = (innerHeight - screenHeight) / 2;
 
 function getBlockPos(px: number, py: number): [number, number] {
     const worldX = px - offsetX - world.worldContainer.position.x;
-    const worldY = py - offsetY - world.worldContainer.position.y;
+    const worldY = py + offsetY - world.worldContainer.position.y;
 
     const x = Math.floor(worldX / blockSize);
-    const y = Math.round(worldY / blockSize);
+    const y = Math.floor(worldY / blockSize);
 
     return [x, y];
 }

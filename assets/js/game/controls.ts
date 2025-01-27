@@ -60,7 +60,7 @@ export function loop() {
 
     if(tabFocusLost) {
         tabFocusLost = false;
-        lastUpdate = current + 1;
+        lastUpdate = current;
     }
 
     const rDelta = current - lastUpdate;

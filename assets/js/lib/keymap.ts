@@ -15,8 +15,8 @@ export class Keymap {
             // Horizontal slice
             const hSlice = txtArr[y];
             for(const char of hSlice) {
-                x++;
                 this.keys[char]?.(x, y);
+                x++;
             }
         }
     }
@@ -66,7 +66,7 @@ export class Map2D<T> {
         return `${x},${y}`;
     }
 
-    private getFromCoord(str: string): [x: number, y: number] {
+    static getFromCoord(str: string): [x: number, y: number] {
         return str.split(",").map(n => Number(n)) as [number, number];
     }
 
@@ -74,8 +74,8 @@ export class Map2D<T> {
         this.map[coord] = t;
     }
 
-    forEach(f: (t: T) => void) {
-        for(const i in this.map) f(this.map[i]);
+    forEach(f: (coord: string, t: T) => void) {
+        for(const i in this.map) f(i, this.map[i]);
     }
 
     radius(x: number, y: number, rx: number, ry: number, size: number, f: (coord: string, t: T) => void) {

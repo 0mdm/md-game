@@ -60,6 +60,7 @@ async function packTextures() {
                 amount: 4,
             }
         },
+        padding: 1,
     });
 
     const c = await packer.pack();

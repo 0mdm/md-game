@@ -16,5 +16,5 @@ app.init({
     height: screenHeight,
     width: screenWidth,
     resolution: devicePixelRatio,
-    backgroundColor: 0xffffff,
+    backgroundColor: 0,
 });

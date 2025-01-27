@@ -26,6 +26,7 @@ interface TexturePackerOpts {
     textures: TextureMesh[];
     url?: string;
     currentSpritesheets?: {[name: string]: CurrentSpritesheets},
+    padding: number;
 }
 
 export class TexturePacker {
@@ -33,6 +34,7 @@ export class TexturePacker {
     ctx: CanvasRenderingContext2D;
     textures: TextureMesh[];
     images: HTMLImageElement[] = [];
+    padding: number;
 
     heights: HeightList = {};
     processedImages: ImageList = {};
@@ -55,6 +57,7 @@ export class TexturePacker {
         );
 
         this.ctx = ctx;
+        this.padding = o.padding;
         this.textures = o.textures;
         this.data.meta.image = o.url;
         this.currentSpritesheets = o.currentSpritesheets || {};
@@ -92,16 +95,16 @@ export class TexturePacker {
             for(const {name, img} of this.heights[height]) {
                 wasLastItem = false;
                 this.drawImage(name, img, x, y);
-                x += img.width;
+                x += img.width + this.padding;
 
                 if(x >= width) {
-                    y += Number(height);
+                    y += Number(height) + this.padding;
                     x = 0;
                     wasLastItem = true;
                 }
             }
 
-            if(!wasLastItem) y += Number(height);
+            if(!wasLastItem) y += Number(height) + this.padding;
             wasLastItem = false;
         }
 
@@ -162,7 +165,7 @@ export class TexturePacker {
         };
     }
 
-    async processImages(): Promise<[number, number]> {
+    private async processImages(): Promise<[number, number]> {
         const prList: Promise<HTMLImageElement>[] = [];
 
         for(const {name, url} of this.textures) {
@@ -181,8 +184,8 @@ export class TexturePacker {
         var height = 0;
         const images: HTMLImageElement[] = await Promise.all(prList);
         for(const img of images) {
-            width += img.width;
-            height += img.height;
+            width += img.width + this.padding;
+            height += img.height + this.padding;
             this.processedImages[img.alt] = img;
         }
 
